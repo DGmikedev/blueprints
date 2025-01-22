@@ -1,5 +1,5 @@
 
-### Informa si algun paquete no esta instalado en Python
+### Informa si algún paquete no esta instalado en Python
 
 ```python
 import pkgutil
