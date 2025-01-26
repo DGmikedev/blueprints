@@ -1,1 +1,1 @@
-### scripts de ayudapara proagramar
+### scripts de ayuda para proagramar
