@@ -23,6 +23,10 @@ fn main() {
     det_arr3x3(arr3);
 }
 
+/*
+* arr3: { [[f64; 3]; 3] }
+* return  determinate del array 3x3
+*/
 fn det_arr3x3(arr3: [[f64; 3]; 3]) {
     let mut arr: [[f64; 3]; 5] = [arr3[0], arr3[1], arr3[2], arr3[0], arr3[1]];
 
