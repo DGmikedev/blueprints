@@ -17,38 +17,44 @@ fn main() {
     println!("Inversa = {:#?}", invArr);
 
     let is_invs = is_inv_arr2x2(_eq, invArr);
-    
-    let arr3:[[f64;3];3] =[
-      [1.0,6.0,9.7],
-      [4.6,6.1,9.0],
-      [1.0,5.0,7.0]
-    ];
-    
+
+    let arr3: [[f64; 3]; 3] = [[1.0, 6.0, 9.7], [4.6, 6.1, 9.0], [1.0, 5.0, 7.0]];
+
     det_arr3x3(arr3);
 }
 
-fn det_arr3x3(arr3:[[f64;3];3]){
-    
-    let mut arr:[[f64; 3]; 5] =[
-      arr3[0],arr3[1],arr3[2],
-      arr3[0],arr3[1]
-    ];
-    
-    let chord:[[f64;3];6] =[
-      [arr[0][0],arr[1][1],arr[2][2]],
-      [arr[1][0],arr[2][1],arr[3][2]],
-      [arr[2][0],arr[3][1],arr[4][2]],
-      [arr[0][2],arr[1][1],arr[2][0]],
-      [arr[1][2],arr[2][1],arr[3][0]],
-      [arr[2][2],arr[3][1],arr[4][0]],
+fn det_arr3x3(arr3: [[f64; 3]; 3]) {
+    let mut arr: [[f64; 3]; 5] = [arr3[0], arr3[1], arr3[2], arr3[0], arr3[1]];
+
+    let mut acm: f64 = 0.0;
+    let mut cont: u8 = 0;
+    let mut left: f64 = 0.0;
+    let mut right: f64 = 0.0;
+
+    let chord: [[f64; 3]; 6] = [
+        [arr[0][0], arr[1][1], arr[2][2]],
+        [arr[1][0], arr[2][1], arr[3][2]],
+        [arr[2][0], arr[3][1], arr[4][2]],
+        [arr[0][2], arr[1][1], arr[2][0]],
+        [arr[1][2], arr[2][1], arr[3][0]],
+        [arr[2][2], arr[3][1], arr[4][0]],
     ];
 
-    println!("{:?}", chord);
+    chord.iter().for_each(|vector| {
+        acm = vector.iter().fold(1.0, |acm, x| acm * x);
+
+        if cont < 3 {
+            left += acm
+        } else {
+            right += acm
+        }
+        cont += 1;
+    });
+
+    println!("determinante 3x3-{}", left - right);
 }
 
-
 /* _---------------------------------_*/
-
 
 fn det_arr2x2(eq: [[f64; 2]; 2]) -> f64 {
     let mut det: f64;
@@ -85,5 +91,4 @@ fn is_inv_arr2x2(arr: [[f64; 2]; 2], inv: [[f64; 2]; 2]) -> String {
     println!("{:?}", mtx_idntity);
     return String::from("resultado");
 }
-
 
