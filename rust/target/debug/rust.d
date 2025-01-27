@@ -1,1 +1,1 @@
-C:\Users\El\ JEFE\Desktop\DESARROLLO\blueprints\rust\target\debug\rust.exe: C:\Users\El\ JEFE\Desktop\DESARROLLO\blueprints\rust\src\main.rs
+C:\Users\El\ JEFE\Desktop\DESARROLLO\blueprints\rust\target\debug\rust.exe: C:\Users\El\ JEFE\Desktop\DESARROLLO\blueprints\rust\math_core\src\lib.rs C:\Users\El\ JEFE\Desktop\DESARROLLO\blueprints\rust\src\main.rs
