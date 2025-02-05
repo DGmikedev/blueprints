@@ -1,11 +1,10 @@
-use rand::Rng;
+use rand::{self, Rng};
 
-fn main(){
+pub fn genera_token(lon: usize )->String{
 
     // Generador de strings seguros!
-    let cantidad: i64 = 64;
     let mut clve: String = String::from("");
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     
     let characters: [&str;67] =[
     "A","B","C","D","E","F","G","H","I","J",
@@ -17,10 +16,12 @@ fn main(){
     "8","9","!","@","#","$","%"
     ];
     
-    for _i in 0..= cantidad {
-        let indx = rng.gen_range(0..=66);
+    for _i in 0..= lon {
+
+        let indx = rng.random_range(0..=66);
         clve.push_str(characters[indx]);
     }
-    println!("{clve}");
+    
+    clve
     
 }

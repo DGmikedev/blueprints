@@ -28,8 +28,13 @@ pub fn det_arr3x3(arr3: [[f64; 3]; 3]) {
     println!("determinante 3x3-{}", left - right);
 }
 
+
+
+// Arrays de 2x2
 /* _---------------------------------_*/
 
+/*
+ */
 pub fn det_arr2x2(eq: [[f64; 2]; 2]) -> f64 {
     let mut det: f64;
     det = eq[0][0] * eq[1][1];
@@ -55,6 +60,7 @@ pub fn inv_arr2x2(arr: [[f64; 2]; 2], det: f64) -> [[f64; 2]; 2] {
 }
 
 pub fn is_inv_arr2x2(arr: [[f64; 2]; 2], inv: [[f64; 2]; 2]) -> String {
+    
     let mut mtx_idntity: [[f64; 2]; 2] = [[0f64; 2]; 2];
 
     mtx_idntity[0][0] = ((arr[0][0] * inv[0][0]) + (arr[0][1] * inv[1][0])).round();
