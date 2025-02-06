@@ -24,19 +24,27 @@ fn main() {
     let array_3x3: [[f64; 3]; 3] = [[1.0, 6.0, 9.7], [4.6, 6.1, 9.0], [1.0, 5.0, 7.0]];
     let det_arr3x3:f64 = vectorial::det_arr3x3(array_3x3);
 
-    println!("\nVECTORIAL:::::::::::::\nCon estos datos: {_eq:?}\nDeterminante 2x2: {determinante}\nVector 2d multiplicado: [1.0, 6.0, 9.0, 8.0, 6.0] x 5.0 = {vect_x_n:?}");
-    println!("inversa 2x2: {arr_inversa:?}\nEs inversa? : {is_invs:?}\nDeterminante de 3x3: {det_arr3x3:?}");
+    println!("\nVECTORIAL:::::::::::::
+    Con estos datos: {_eq:?}
+    Determinante 2x2: {determinante}
+    Vector 2d multiplicado: [1.0, 6.0, 9.0, 8.0, 6.0] x 5.0 = {vect_x_n:?}
+    Inversa 2x2: {arr_inversa:?}
+    Es inversa? : {is_invs:?}
+    Determinante de 3x3: {det_arr3x3:?}");
+    
 
 
     // ***Token  **************************************************************
 
-    let longitud:usize =120; // tamaño del token
+    let longitud:usize =18; // tamaño del token
     let token: String = tokens::genera_token(longitud);
-    println!("\nTOKEN:::::::::::::::::::::::::::::::::::::\ntoken: {token}");
+    println!("\nTOKEN:::::::::::::::::::::::::::::::::::::
+    Token: {token}");
 
     // ******* Estadistica ***************************************************** 
  
-    let valores: [f32; 5] = [1.0, 9.0, 3.8, 8.9, 2.5];
+    let valores:  [f32; 5] = [12.0, 2.0, 3.0, 4.0, 5.0];
+    let valores2: [f32; 5] = [13.0, 7.0, 8.0, 9.0, 0.0];
 
     // media
     let media: f32 = estadistica::media(&valores); 
@@ -47,7 +55,18 @@ fn main() {
     // desviacion estandar
     let desvi_estan:f32 = estadistica::desviacion_estd(&varianzas[0]);
 
-    println!("\nESTADISTICA::::::::::::::::::::::::::\nMedia: {media}\nVarianza: {varianzas:?}\nDesviacón estandar: {desvi_estan}");
+    // factor de correlación
+    let factor: f32 = estadistica::factor_correlacion(&valores, &valores2);
+
+
+
+    println!("\nESTADISTICA::::::::::::::::::::::::::
+    Datos: {valores:?} , {valores2:?}
+    Media: {media}
+    Varianza: {varianzas:?}
+    Desviacón estandar: {desvi_estan}
+    Factor: {factor}");
+    
 
     // ************************************************************************
 

@@ -60,3 +60,4 @@ pub fn det_arr3x3(arr3: [[f64; 3]; 3])->f64 {
 
     left - right
 }
+
