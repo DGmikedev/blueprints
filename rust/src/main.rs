@@ -43,8 +43,8 @@ fn main() {
 
     // ******* Estadistica ***************************************************** 
  
-    let valores:  [f32; 5] = [12.0, 2.0, 3.0, 4.0, 5.0];
-    let valores2: [f32; 5] = [13.0, 7.0, 8.0, 9.0, 0.0];
+    let valores:  [f32; 8] = [12.0, 15.0, 22.0, 29.0, 34.0, 40.0, 18.0, 25.0];
+    let valores2: [f32; 8] = [13.0, 4.24, 420.99, 5.0, 451.0, 65.0, 65.0, 320.0];
 
     // media
     let media: f32 = estadistica::media(&valores); 
@@ -55,17 +55,43 @@ fn main() {
     // desviacion estandar
     let desvi_estan:f32 = estadistica::desviacion_estd(&varianzas[0]);
 
+    // coeficinete de variacion
+    // CV < 10% → Baja variabilidad (los datos son relativamente homogéneos).
+    // 10% ≤ CV ≤ 30% → Variabilidad moderada.
+    // CV > 30% → Alta variabilidad (los datos son muy dispersos).
+    let coeficiente_de_variacion: f32 = estadistica::coeficiente_de_variacion(&desvi_estan, &media);
+
     // factor de correlación
-    let factor: f32 = estadistica::factor_correlacion(&valores, &valores2);
+    let factor_correlacion: f32 = estadistica::factor_correlacion(&valores, &valores2);
 
 
+    // factor de correlación matricial
+ 
+    let mut matriz: Vec<Vec<f32>> = vec![
+        vec![10.0, 12.0, 91.0, 18.0, 13.0, 14.0, 10.0, 15.0],
+        vec![18.0, 13.0, 16.0, 12.0, 17.0, 19.0, 14.0, 12.0],
+        vec![14.0, 10.0, 13.0, 91.0, 41.0, 51.0, 12.0, 02.0],
+        vec![21.0, 82.0, 11.0, 72.0, 32.0, 41.0, 09.0, 18.0],
+       /* vec![19.0, 15.0, 17.0, 01.0, 42.0, 02.0, 11.0, 62.0],
+        vec![02.0, 24.0, 20.0, 23.0, 19.0, 25.0, 02.0, 72.0],
+        vec![12.0, 52.0, 82.0, 32.0, 62.0, 22.0, 93.0, 02.0],
+        vec![04.0, 30.0, 33.0, 27.0, 31.0, 26.0, 34.0, 36.29] */
+    ];
+
+    let transp: Vec<Vec<f32>> = estadistica:: correlacion_matriz(&matriz);
+    for i in transp.clone().into_iter(){
+        println!("{i:?}")
+    }
+
+    println!("{transp:?}");
 
     println!("\nESTADISTICA::::::::::::::::::::::::::
-    Datos: {valores:?} , {valores2:?}
-    Media: {media}
-    Varianza: {varianzas:?}
-    Desviacón estandar: {desvi_estan}
-    Factor: {factor}");
+           Datos: {valores:?} , {valores2:?}
+           Media (μ): {media}
+           Varianza (σ^2): {varianzas:?}
+           Coeficiente de variación (CV): {coeficiente_de_variacion}
+           Desviación estándar (σ): {desvi_estan}
+           Coeficiente de correlación (ρ): {factor_correlacion}");
     
 
     // ************************************************************************
