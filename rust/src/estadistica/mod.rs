@@ -1,9 +1,17 @@
-    pub fn media(_val: &[f32; 8]) -> f32 {
+use std::{result, vec};
+
+macro_rules! pr_Vv{ ($vec:expr)=>{ for i in $vec.into_iter(){ println!("{:?}", i) }  } }
+macro_rules! pr_v{  ($vec:expr)=>{  println!("{:?}", $vec)  }  }
+macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} ----------------------------------\n", $txt) } }
+
+
+
+    pub fn media(_val: &Vec<f32>) -> f32 {
         let suma = _val.into_iter().fold(0f32, |x: f32, y: &f32| x + y);
         suma / _val.len() as f32
     }
 
-    pub fn varianza(val: &[f32; 8], med: &f32) -> [f32; 2] {
+    pub fn varianza(val:&Vec<f32> , med: &f32) -> [f32; 2] {
 
         let mut var:f32 = 0.0;
 
@@ -17,7 +25,7 @@
      var_pob.sqrt()
     }
 
-    pub fn factor_correlacion(val:&[f32;8], val2:&[f32;8]) -> f32 {
+    pub fn factor_correlacion(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
     
         let mut vec_x: Vec<f32> = Vec::new();
         let mut vec_y: Vec<f32> = Vec::new();
@@ -61,116 +69,436 @@
             (desv_estan / media) * 100.0
         }
 
-        pub fn correlacion_matriz(matrx:&Vec<Vec<f32>>)->Vec<Vec<f32>>{          //Vec<Vec<f32>>{
 
-            let n = matrx.len();
-            let mut transposed = vec![vec![0.0; n]; n];
-        
+        fn transpuestafn( arr:&Vec<Vec<f32>> )->Vec<Vec<f32>>{
+
+            let high:usize = arr.len();
+            let with:usize = arr[0].len();
+            let mut arr_return: Vec<Vec<f32>> = vec![vec![0.0; high]; with];
+                for (i, vect) in arr.into_iter().enumerate(){ 
+                    for j in 0..vect.len(){
+                        arr_return[j][i] = arr[i][j]; 
+                    }
+                }
+            //for i in arr_return.into_iter(){ println!("{:?}", i) }
+            arr_return
+        }
+
+
+
+        pub fn correlacion_matriz(matrx:&Vec<Vec<f32>>)->Vec<Vec<f32>>{
+
+            let mut vector_medias: Vec<f32> = Vec::new();
+            let mut vector_varianzas:Vec<f32> = Vec::new();
+            let mut vector_desviaciones_std:Vec<f32> = Vec::new();
+            let mut vector_temporal:Vec<f32> = Vec::new();
+            let mut vector_temporal2: Vec<f32> = Vec::new();
+            let mut matriz_covarianzas_por_par:Vec<Vec<f32>> = Vec::new();
+            let mut matriz_de_correlacion:Vec<Vec<f32>> = Vec::new();
+            let mut vector_covarianzas_por_par:Vec<f32> = Vec::new();
+            let mut matriz_temporal:Vec<Vec<f32>> = Vec::new();
+
+            let mut acm:usize = 0;
+            let mut skp:usize = 0;
+            let mut acm_f32: f32 = 0.0;
+            let mut acm2_f32: f32 = 0.0;
+            let mut tupla_tmp_f32:[f32;2] = [0.0;2];
+
+            // transpuesta de la original 
+            // [ [][][][] ]
+            let transpuesta:Vec<Vec<f32>> = transpuestafn(matrx);
+
+            // Vector de medias
+            transpuesta.clone().into_iter().for_each(|vec:Vec<f32>|{
+                vector_medias.push( media(&vec));
+            });
+
+            // vector de varianzas
+            transpuesta.clone().into_iter().for_each(|vec: Vec<f32>|{
+                tupla_tmp_f32 = varianza(&vec, &vector_medias[acm]);
+                vector_varianzas.push(tupla_tmp_f32[0]);
+                acm += 1;
+            });
+            
+            // Vector de desviaciones estandar
+            vector_varianzas.clone().into_iter().for_each(|varianza|{
+                vector_desviaciones_std.push( desviacion_estd(&varianza) );
+            });
+            
+            acm = 0;
+            
+            // Calcular el Vector de covarianzas por par de columnas
+            // col 1,2 - 2,3 - 3,4 - 4,5
+            // col 1,3 - 2,4 - 3,5 - 4,6
+            // cal 1,4 - 2,5 - 3,6 - 4,7
+
+            // 1.- restar la media al valor original
+            matrx.clone().into_iter().for_each(|x:Vec<f32>|{
+                x.into_iter().for_each(|y:f32|{
+                   //  tmp_i = y - media_v[acm];
+                    vector_temporal.push(y - vector_medias[acm]);
+                    acm += 1;
+                });
+                acm = 0;
+                matriz_temporal.push(vector_temporal.clone());
+                vector_temporal.clear()
+            });
+
+            // 2.- multiplicar clumnas
+            skp = 1;
+
+            for i in 0 .. matriz_temporal.len() - 1 {
+                for k in 0 .. matriz_temporal.len(){
+                    for j in 0 .. matriz_temporal.len() - skp {
+                        if j >= matriz_temporal.len() { continue } 
+                            vector_temporal.push( matriz_temporal[k][j] * matriz_temporal[k][j + skp] );
+                        }
+                    matriz_covarianzas_por_par.push( vector_temporal.clone() );
+                    vector_temporal.clear();
+                }
+
+                acm_f32 = 0.0;
+
+                for (index, i) in matriz_covarianzas_por_par.clone().into_iter().enumerate(){
+                    for (index2,j) in i.into_iter().enumerate(){
+                        if index2 > 0 { continue }
+                        acm_f32 = acm_f32 + matriz_covarianzas_por_par[index][index2];
+                    }
+                }
+
+                vector_temporal2.push(acm_f32);
+                
+                // 3.- tranponer 
+                matriz_covarianzas_por_par = transpuestafn(&matriz_covarianzas_por_par.clone());
+                for i in matriz_covarianzas_por_par.clone().into_iter(){
+                    acm2_f32 = i.into_iter().fold(0f32, |x:f32, y:f32| x + y);  // 4.- sumar columnas
+                    vector_covarianzas_por_par.push(acm2_f32 / matrx.len() as f32 );    // 5.- dividir entre largo de la matriz original
+                }
+                matriz_covarianzas_por_par.clear();
+                skp += 1;
+            }
+
+
+
+
+
+
+//             pr_separador!();
+//             pr_v!(vector_medias);
+//             pr_separador!();
+//             pr_v!(vector_varianzas);
+//             pr_separador!();
+//             pr_v!(vector_desviaciones_std);
+//             pr_separador!();
+//             pr_v!(acm);
+//              pr_separador!("Vector temporal = Con la resta de la media por variable a plicado a las columnas"); 
+//              pr_Vv!(matriz_temporal);
+
+             // pr_separador!("matriz_cov_por_par");
+             // pr_Vv!(matriz_covarianzas_por_par);
+             pr_separador!("Vector de covarianzas por par de columnas");
+                pr_Vv!(vector_covarianzas_por_par);
+            // let n = matrx.len();
+            // let mut transpuesta: Vec<Vec<f32>> = vec![vec![0.0; n]; n];
+            // let mut media_v:Vec<f32> = Vec::new(); 
+            // let mut varianza_v:Vec<f32> = Vec::new();
+            // let mut covarianza_par_var: Vec<Vec<f32>> = Vec::new();
+            // let mut acm: usize = 0;
+            // let mut acm_f32: f32 = 0.0;
+            // let mut desviacion_std_v:Vec<f32> = Vec::new();
+            // let mut resultado: Vec<Vec<f32>> = Vec::new();
+            // let mut tmp_v: Vec<f32> = Vec::new();
+            // let mut tmp_v2: Vec<f32> = Vec::new();
+            // let mut tmp_i:f32 = 0.0;
+            // let mut tmp_tpl:[f32;2] = [0.0,0.0];
+            // let mut vec_varianzas:Vec<f32> = Vec::new();
+            // let mut step:usize = 0;
+
+
+            // test array
+            // let mtrx2:Vec<Vec<f32>> = vec![
+            //     vec![10.0, 18.0, 14.0, 21.0, 19.0, 2.0,  12.0, 4.0], vec![12.0, 13.0, 10.0, 82.0, 15.0, 24.0, 52.0, 30.0],
+            //     vec![10.0, 18.0, 14.0, 21.0, 19.0, 2.0,  12.0, 4.0], vec![12.0, 13.0, 10.0, 82.0, 15.0, 24.0, 52.0, 30.0]
+            // ];
+
+
+/*
+            // transpuesta
             for i in 0..n {
                 for j in 0..n {
-                    transposed[j][i] = matrx[i][j];
+                    transpuesta[j][i] = matrx[i][j];
                 }
             }
 
             
-            transposed
-            /* let mut columnas:Vec<f32> = Vec::new();
-            let mut _contendor:Vec<Vec<f32>> = Vec::new();
-            let mut acm:usize = 0;
-            let mut acm2:usize = 0;
+            
+            // media
+            for i in transpuesta.clone().into_iter(){
+                media_v.push( media(&i) );
+            }
 
-            for i in matrx.clone().into_iter(){
+            // varianza
+            for (indice, valor) in transpuesta.clone().into_iter().enumerate(){
+                tmp_tpl =  varianza( &valor, &media_v[indice]);
+                varianza_v.push(tmp_tpl[0])
+            }
 
-                for j in i.into_iter(){
-                    _contendor[acm][acm2].push(j);
-                    acm2 += 1;
+            // desviación estandar
+            for i in varianza_v.clone().into_iter(){
+                desviacion_std_v.push( desviacion_estd(&i) );
+            }
+
+            // num - su_media_por_columna
+            
+            matrx.clone().into_iter().for_each(|x:Vec<f32>|{
+                x.into_iter().for_each(|y:f32|{
+                    tmp_i = y - media_v[acm];
+                    tmp_v.push(tmp_i);
+                    acm += 1;
+                });
+                acm = 0;
+                resultado.push(tmp_v.clone());
+                tmp_v.clear()
+            });
+
+
+            let mut skp:usize = 1;
+
+            for i in 0 .. resultado.len() - 1 {
+
+                for k in 0 .. resultado.len(){
+                    
+                    for j in 0 .. resultado.len() - skp {
+
+                        if j >= resultado.len() { continue } 
+
+                    //    // println!("i:{i} k:{k} j:{j} skp:{skp} skp2{skp_2} ");
+                    //      println!("{:?} x {:?} = {:?}",resultado[k][j], 
+                    //                                               resultado[k][j + skp], 
+                    //                                               resultado[k][j] * resultado[k][j + skp]);
+                        tmp_v.push( resultado[k][j] * resultado[k][j + skp] );
+                       
+                    }
+
+                    covarianza_par_var.push( tmp_v.clone() );
+
+                    tmp_v.clear();
+                    acm_f32 = 0.0;
                 }
-                acm += 1;
+
                 
+                acm_f32 = 0.0;
+                for (index, i) in covarianza_par_var.clone().into_iter().enumerate(){
+            // 'v   
+                    for (index2,j) in i.into_iter().enumerate(){
                 
-            } */
+                        if index2 > 0 { continue } // ->
+                        acm_f32 = acm_f32 + covarianza_par_var[index][index2];
+                    //    println!("** {} - {}", covarianza_par_var[index][index2], acm_f32);
+                    }
+                    // tmp_v2.push(acm_f32);
+                   // acm_f32 = 0.0;
+                }
+            //    println!("push -> {acm_f32}");
+                tmp_v2.push(acm_f32);
+                
+                tmp_v.clear();
+                
+                covarianza_par_var.push( tmp_v.clone() );
 
-        }
+                skp += 1;
+
+            }
+*/
+        
+        //     for i  in covarianza_par_var.into_iter(){
+        //         println!(":{:?}", i)
+        //     }
+// 
+        //     for i  in tmp_v2.into_iter(){
+        //         println!("--{:?}", i)
+        //     }
 
 
-        /*
+// EN_USO
+ /*
 
-La matriz de correlación es una tabla cuadrada donde cada celda muestra el coeficiente de correlación de Pearson (ρρ) entre dos variables. Se usa para analizar la relación lineal entre múltiples variables.
-Pasos para calcular una matriz de correlación 8×8 manualmente
-1. Construir la matriz de datos (XX)
+            let vecr:[f32;8] = [-987.34375,
+            324.53125,
+            441.90625,
+            -1273.5938,
+            271.03125,
+            88.40625,
+            1037.4063,
+            -0.59375];
 
-Supongamos que tenemos 8 variables (X1,X2,...,X8X1​,X2​,...,X8​), y cada una tiene 8 valores (observaciones).
+            let v:f32 = vecr.into_iter().fold(0f32,|x:f32, y:f32| x + y );
+        //    println!("SUMA:::: {v}");
+*/
 
-Ejemplo de matriz de datos (XX):
-X=[10151220182225301218142219242833913101815202327111613211723263181291714192226131714232025293414191524212730361014111916212429]
-X=
-​10129118131410​1518131612171914​121410139141511​2022182117232419​1819151714202116​2224202319252721​2528232622293024​3033273126343629​
-​
+  
+            return transpuesta;
 
-Cada columna representa una variable diferente, y cada fila representa una observación.
-2. Calcular la media (μμ) de cada variable
 
-Para cada columna (variable XiXi​), sumamos los valores y dividimos entre 8 (número de observaciones).
 
-Ejemplo para X1X1​:
-μX1=10+12+9+11+8+13+14+108=878=10.875
-μX1​​=810+12+9+11+8+13+14+10​=887​=10.875
+}
 
-Repetimos para todas las columnas.
-3. Calcular la desviación estándar (σσ) de cada variable
 
-La fórmula es:
-σXi=∑(Xi−μXi)2N
-σXi​​=N∑(Xi​−μXi​​)2​
-​
+       //      for i in covarianza_par_var.clone().into_iter(){
+        //          println!("{i:?}");
+        //     }
+            
 
-Ejemplo para X1X1​:
-σX1=(10−10.875)2+(12−10.875)2+...+(10−10.875)28
-σX1​​=8(10−10.875)2+(12−10.875)2+...+(10−10.875)2​
-​
+/*
 
-Se repite para cada variable.
-4. Calcular el coeficiente de correlación (ρρ) entre cada par de variables
 
-El coeficiente de correlación de Pearson entre dos variables XiXi​ y XjXj​ se define como:
-ρXi,Xj=∑(Xi−μXi)(Xj−μXj)N⋅σXi⋅σXj
-ρXi​,Xj​​=N⋅σXi​​⋅σXj​​∑(Xi​−μXi​​)(Xj​−μXj​​)​
+:[44.375,  -987.34375, -917.8125, 315.5625, 210.375, 144.375, 162.89767]    
+:[-92.125, 324.53125, 435.9375, 340.3125, 90.75, 54.75, 140.62767]
+:[-29.625, 441.90625, -1264.1875, 501.4375, 230.75, -289.25, 282.70016]    
+:[444.125, -1273.5938, -914.0625, -4.6875, -2.0, -226.0, 132.93391]        
+:[-95.875, 271.03125, 615.5625, -330.8125, -227.125, 278.875, -419.38858]  
+:[60.375,  88.40625, 176.8125, 150.9375, -0.0, -0.0, -941.9373]
+:[-11.125, 1037.4063, -116.5625, -74.6875, -89.625, -209.625, -1775.6112]  
+:[-2.125,  -0.59375, 17.8125, 8.4375, -1.125, 10.875, 96.556404]
+:[]
+:[-139.0625, 292.875, -1063.8281, 181.5, 251.01563, 136.52376]
+:[-106.5625, 376.875, 293.04688, 135.0, 138.01563, 92.46751]
+:[-33.5625, -1115.875, -198.57813, 1469.0, -98.734375, -660.6925]
+:[-207.1875, 1959.375, 3.046875, 600.0, 1.765625, -150.58002]
+:[-119.4375, 494.125, -181.45313, 770.5, -119.734375, -795.5412]
+:[161.4375, 66.125, 201.79688, -0.0, 277.26563, 0.0]
+:[-23.3125, -55.625, 1392.9219, 7.5, 2087.5156, 76.23375]
+:[20.1875, -1.875, 2.671875, -7.5, -12.234375, 8.87875]
+:[]
+:[41.25, 339.46875, -611.875, 216.5625, 237.36517]
+:[-123.75, 253.34375, 116.25, 205.3125, 233.09517]
+:[84.75, -175.28125, -581.75, -628.5625, -225.52486]
+:[318.75, -6.53125, -390.0, -529.6875, 1.1764064]
+:[-217.75, -145.65625, 422.625, 406.1875, 341.5639]
+:[120.75, 75.46875, -0.0, 242.9375, -585.22736]
+:[1.25, 664.71875, -139.875, -174.6875, -759.16113]
+:[63.75, -0.28125, -2.375, -81.5625, -9.988594]
+:[]
+:[47.8125, 195.25, -730.0781, 204.78564]
+:[-83.1875, 100.5, 176.79688, 346.75314]
+:[13.3125, -513.5, 248.92188, -1435.7357]
+:[-1.0625, 836.0, 344.29688, -352.9219]
+:[64.1875, 339.25, 222.79688, -1158.7231]
+:[137.8125, -0.0, 324.79688, -512.7706]
+:[-14.9375, -66.75, 3257.9219, 63.52813]
+:[9.5625, 0.25, -25.828125, -66.59062]
+:[]
+:[27.5, 232.96875, -690.37585]
+:[-33.0, 152.84375, 298.593]
+:[39.0, 219.71875, 568.5767]
+:[136.0, -738.03125, 229.39925]
+:[-149.5, 178.84375, -635.56824]
+:[-0.0, 121.46875, -685.552]
+:[1.5, 1554.7188, -1184.7996]
+:[-8.5, 2.71875, -21.08703]
+:[]
+:[32.8125, 220.29971]
+:[-50.1875, 258.13846]
+:[-16.6875, 501.87222]
+:[-120.0625, -491.73785]
+:[-78.8125, -510.18405]
+:[221.8125, -256.3853]
+:[-34.9375, -565.4003]
+:[-92.4375, 2.2196875]
+:[]
+:[31.028128]
+:[-84.76188]
+:[-38.116875]
+:[-79.995636]
+:[224.82687]
+:[-468.18185]
+:[12.705626]
+:[-75.469376]
+:[]
 
-Ejemplo para la correlación entre X1X1​ y X2X2​:
-ρX1,X2=(10−10.875)(15−16.625)+(12−10.875)(18−16.625)+…8⋅σX1⋅σX2
-ρX1​,X2​​=8⋅σX1​​⋅σX2​​(10−10.875)(15−16.625)+(12−10.875)(18−16.625)+…​
 
-Este proceso se repite para todas las combinaciones de pares de variables.
-5. Construcción de la matriz de correlación RR
+*/
 
-La matriz de correlación 8×8 final tiene la forma:
-R=[1ρ1,2ρ1,3ρ1,4ρ1,5ρ1,6ρ1,7ρ1,8ρ2,11ρ2,3ρ2,4ρ2,5ρ2,6ρ2,7ρ2,8ρ3,1ρ3,21ρ3,4ρ3,5ρ3,6ρ3,7ρ3,8ρ4,1ρ4,2ρ4,31ρ4,5ρ4,6ρ4,7ρ4,8ρ5,1ρ5,2ρ5,3ρ5,41ρ5,6ρ5,7ρ5,8ρ6,1ρ6,2ρ6,3ρ6,4ρ6,51ρ6,7ρ6,8ρ7,1ρ7,2ρ7,3ρ7,4ρ7,5ρ7,61ρ7,8ρ8,1ρ8,2ρ8,3ρ8,4ρ8,5ρ8,6ρ8,71]
-R=
-​1ρ2,1​ρ3,1​ρ4,1​ρ5,1​ρ6,1​ρ7,1​ρ8,1​​ρ1,2​1ρ3,2​ρ4,2​ρ5,2​ρ6,2​ρ7,2​ρ8,2​​ρ1,3​ρ2,3​1ρ4,3​ρ5,3​ρ6,3​ρ7,3​ρ8,3​​ρ1,4​ρ2,4​ρ3,4​1ρ5,4​ρ6,4​ρ7,4​ρ8,4​​ρ1,5​ρ2,5​ρ3,5​ρ4,5​1ρ6,5​ρ7,5​ρ8,5​​ρ1,6​ρ2,6​ρ3,6​ρ4,6​ρ5,6​1ρ7,6​ρ8,6​​ρ1,7​ρ2,7​ρ3,7​ρ4,7​ρ5,7​ρ6,7​1ρ8,7​​ρ1,8​ρ2,8​ρ3,8​ρ4,8​ρ5,8​ρ6,8​ρ7,8​1​
-​
 
-    Diagonal principal: Siempre tiene valores de 11, porque la correlación de una variable consigo misma es 1.
-    Valores fuera de la diagonal: Son los coeficientes de correlación entre pares de variables.
-    Matriz simétrica: ρi,j=ρj,iρi,j​=ρj,i​, porque la correlación es la misma en ambas direcciones.
 
-Ejemplo de matriz de correlación con valores hipotéticos
 
-Supongamos que los cálculos nos dieron estos valores:
-R=[10.850.720.650.800.900.500.600.8510.780.680.820.880.550.620.720.7810.750.790.850.480.580.650.680.7510.720.780.450.520.800.820.790.7210.860.530.640.900.880.850.780.8610.570.670.500.550.480.450.530.5710.750.600.620.580.520.640.670.751]
-R=
-​10.850.720.650.800.900.500.60​0.8510.780.680.820.880.550.62​0.720.7810.750.790.850.480.58​0.650.680.7510.720.780.450.52​0.800.820.790.7210.860.530.64​0.900.880.850.780.8610.570.67​0.500.550.480.450.530.5710.75​0.600.620.580.520.640.670.751​
-​
-Conclusión
+/*
 
-Hacer una matriz de correlación 8×8 manualmente implica:
+-2.5 x -17.75 = 44.375       - 01    5.5 x -16.75 = -92.125            1.5 x -19.75 = -29.625            8.5 x 52.25 = 444.125
+-17.75 x 55.625 = -987.34375 - 12   -16.75 x -19.375 = 324.53125       -19.75 x -22.375 = 441.90625      52.25 x -24.375 = -1273.5938
+55.625 x -16.5 = -917.8125   - 23   -19.375 x -22.5 = 435.9375         -22.375 x 56.5 = -1264.1875       -24.375 x 37.5 = -914.0625
+-16.5 x -19.125 = 315.5625   - 34   -22.5 x -15.125 = 340.3125         56.5 x 8.875 = 501.4375           37.5 x -0.125 = -4.6875
+-19.125 x -11.0 = 210.375    - 45   -15.125 x -6.0 = 90.75             8.875 x 26.0 = 230.75             -0.125 x 16.0 = -2.0
+-11.0 x -13.125 = 144.375    - 56   -6.0 x -9.125 = 54.75              26.0 x -11.125 = -289.25          16.0 x -14.125 = -226.0
+-13.125 x -12.41 = 162.89767 - 67   -9.125 x -15.411251 = 140.62767    -11.125 x -25.411251 = 282.70016  -14.125 x -9.411251 = 132.93391
 
-    Calcular la media de cada variable.
-    Calcular la desviación estándar de cada variable.
-    Calcular los coeficientes de correlación entre cada par de variables.
-    Organizar los valores en la matriz de correlación.
+6.5 x -14.75 = -95.875              -10.5 x -5.75 = 60.375           -0.5 x 22.25 = -11.125             -8.5 x 0.25 = -2.125
+-14.75 x -18.375 = 271.03125       -5.75 x -15.375 = 88.40625        22.25 x 46.625 = 1037.4063         0.25 x -2.375 = -0.59375
+-18.375 x -33.5 = 615.5625         -15.375 x -11.5 = 176.8125        46.625 x -2.5 = -116.5625          -2.375 x -7.5 = 17.8125
+-33.5 x 9.875 = -330.8125          -11.5 x -13.125 = 150.9375        -2.5 x 29.875 = -74.6875           -7.5 x -1.125 = 8.4375
+9.875 x -23.0 = -227.125           -13.125 x 0.0 = -0.0              29.875 x -3.0 = -89.625            -1.125 x 1.0 = -1.125
+-23.0 x -12.125 = 278.875          0.0 x -21.125 = -0.0              -3.0 x 69.875 = -209.625           1.0 x 10.875 = 10.875
+-12.125 x 34.58875 = -419.38858    -21.125 x 44.58875 = -941.9373    69.875 x -25.411251 = -1775.6112   10.875 x 8.87875 = 96.556404
 
-🔹 Aplicaciones: Se usa en estadísticas, ciencia de datos, finanzas, psicología, y más.
+[44.375, -987.34375, -917.8125, 315.5625, 210.375, 144.375, 162.89767]
+[-139.0625, 292.875, -1063.8281, 181.5, 251.01563, 136.52376]
+[41.25, 339.46875, -611.875, 216.5625, 237.36517]
+[47.8125, 195.25, -730.0781, 204.78564]
+[27.5, 232.96875, -690.37585]
+[32.8125, 220.29971]
+[31.028128]
+[-92.125, 324.53125, 435.9375, 340.3125, 90.75, 54.75, 140.62767]
+[-106.5625, 376.875, 293.04688, 135.0, 138.01563, 92.46751]
+[-123.75, 253.34375, 116.25, 205.3125, 233.09517]
+[-83.1875, 100.5, 176.79688, 346.75314]
+[-33.0, 152.84375, 298.593]
+[-50.1875, 258.13846]
+[-84.76188]
+[-29.625, 441.90625, -1264.1875, 501.4375, 230.75, -289.25, 282.70016]
+[-33.5625, -1115.875, -198.57813, 1469.0, -98.734375, -660.6925]
+[84.75, -175.28125, -581.75, -628.5625, -225.52486]
+[13.3125, -513.5, 248.92188, -1435.7357]
+[39.0, 219.71875, 568.5767]
+[-16.6875, 501.87222]
+[-38.116875]
+[444.125, -1273.5938, -914.0625, -4.6875, -2.0, -226.0, 132.93391]
+[-207.1875, 1959.375, 3.046875, 600.0, 1.765625, -150.58002]
+[318.75, -6.53125, -390.0, -529.6875, 1.1764064]
+[-1.0625, 836.0, 344.29688, -352.9219]
+[136.0, -738.03125, 229.39925]
+[-120.0625, -491.73785]
+[-79.995636]
+[-95.875, 271.03125, 615.5625, -330.8125, -227.125, 278.875, -419.38858]
+[-119.4375, 494.125, -181.45313, 770.5, -119.734375, -795.5412]
+[-217.75, -145.65625, 422.625, 406.1875, 341.5639]
+[64.1875, 339.25, 222.79688, -1158.7231]
+[-149.5, 178.84375, -635.56824]
+[-78.8125, -510.18405]
+[224.82687]
+[60.375, 88.40625, 176.8125, 150.9375, -0.0, -0.0, -941.9373]
+[161.4375, 66.125, 201.79688, -0.0, 277.26563, 0.0]
+[120.75, 75.46875, -0.0, 242.9375, -585.22736]
+[137.8125, -0.0, 324.79688, -512.7706]
+[-0.0, 121.46875, -685.552]
+[221.8125, -256.3853]
+[-468.18185]
+[-11.125, 1037.4063, -116.5625, -74.6875, -89.625, -209.625, -1775.6112]
+[-23.3125, -55.625, 1392.9219, 7.5, 2087.5156, 76.23375]
+[1.25, 664.71875, -139.875, -174.6875, -759.16113]
+[-14.9375, -66.75, 3257.9219, 63.52813]
+[1.5, 1554.7188, -1184.7996]
+[12.705626]
+[-2.125, -0.59375, 17.8125, 8.4375, -1.125, 10.875, 96.556404]
+[20.1875, -1.875, 2.671875, -7.5, -12.234375, 8.87875]
+[63.75, -0.28125, -2.375, -81.5625, -9.988594]
+[9.5625, 0.25, -25.828125, -66.59062]
+[-8.5, 2.71875, -21.08703]
+[-92.4375, 2.2196875]
+[-75.469376]
 
-¿Necesitas más detalles o ejemplos? 😊
-         * 
-         */
+
+
+*/
+
+
+      

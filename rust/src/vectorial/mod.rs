@@ -61,3 +61,16 @@ pub fn det_arr3x3(arr3: [[f64; 3]; 3])->f64 {
     left - right
 }
 
+pub fn transposed_n_x_n(matrx: &Vec<Vec<f32>>) -> Vec<Vec<f32>>{
+    
+    let n = matrx.len();
+    let mut transpuesta: Vec<Vec<f32>> = vec![];
+
+    for i in 0..n {
+        for j in 0..n {
+            transpuesta[j][i] = matrx[i][j];
+        }
+    }
+    transpuesta  
+ }
+
