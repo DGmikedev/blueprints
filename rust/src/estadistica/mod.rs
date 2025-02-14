@@ -170,13 +170,44 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
                 
                 // 3.- tranponer 
                 matriz_covarianzas_por_par = transpuestafn(&matriz_covarianzas_por_par.clone());
+
+                pr_separador!("Matriz de matriz_covarianzas_por_par: ");
+                pr_Vv!(matriz_covarianzas_por_par.clone());
+
+
                 for i in matriz_covarianzas_por_par.clone().into_iter(){
                     acm2_f32 = i.into_iter().fold(0f32, |x:f32, y:f32| x + y);  // 4.- sumar columnas
-                    vector_covarianzas_por_par.push(acm2_f32 / matrx.len() as f32 );    // 5.- dividir entre largo de la matriz original
+                    pr_separador!(acm2_f32);
+                    vector_covarianzas_por_par.push(acm2_f32 / matrx.len() as f32  - 1.0  );    // 5.- dividir entre largo de la matriz original
                 }
                 matriz_covarianzas_por_par.clear();
                 skp += 1;
             }
+
+            vector_temporal.clear();
+
+            for i in 0..matrx.len(){
+                for j in 0..matrx.len(){
+                    if i == j { 
+                        vector_temporal.push(1.0); 
+                        continue
+                    }
+
+                   // println!("{} / {} x {}", vector_covarianzas_por_par[i],vector_desviaciones_std[i], vector_desviaciones_std[j] );
+                    vector_temporal.push( vector_covarianzas_por_par[i] / ( vector_desviaciones_std[i] * vector_desviaciones_std[j] ) );
+                }
+
+                matriz_de_correlacion.push(vector_temporal.clone());
+                vector_temporal.clear();
+            }
+
+            pr_separador!("vector de covarianzas");
+            pr_v!(vector_covarianzas_por_par);
+
+            pr_separador!("vector de desviaciones estandar");
+            pr_v!(vector_desviaciones_std);
+
+           
 
             
         //     matriz_de_correlac
@@ -197,8 +228,8 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
 
              // pr_separador!("matriz_cov_por_par");
              // pr_Vv!(matriz_covarianzas_por_par);
-             pr_separador!("Vector de covarianzas por par de columnas");
-                pr_Vv!(vector_covarianzas_por_par);
+        //      pr_separador!("Vector de covarianzas por par de columnas");
+        //         pr_Vv!(vector_covarianzas_por_par);
             // let n = matrx.len();
             // let mut transpuesta: Vec<Vec<f32>> = vec![vec![0.0; n]; n];
             // let mut media_v:Vec<f32> = Vec::new(); 
