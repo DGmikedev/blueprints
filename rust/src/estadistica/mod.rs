@@ -14,11 +14,24 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
     pub fn varianza(val:&Vec<f32> , med: &f32) -> [f32; 2] {
 
         let mut var:f32 = 0.0;
-
         val.into_iter()
-            .for_each(|x: &f32| var += (x - med).powi(2) ); 
+            .for_each(|x: &f32|{ 
+                var += (x - med).powi(2);
+             }); 
+        [var /(val.len() as f32), var /(val.len() as f32 - 1f32)]
+    }
 
-        [var / val.len() as f32, var / val.len() as f32 - 1f32]
+    pub fn desvisacion_estd_por_vector(val:&Vec<f32> , med: &f32) -> f32 {
+
+        let mut var:f32 = 0.0;
+        val.into_iter()
+            .for_each(|x: &f32|{ 
+                var = var + (x - med).powi(2);
+            }); 
+            var = var/(val.len() as f32 - 1f32);
+            var = var.sqrt();
+            var
+        
     }
     
     pub fn desviacion_estd(var_pob:&f32)->f32{
@@ -95,8 +108,10 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
             let mut vector_temporal2: Vec<f32> = Vec::new();
             let mut matriz_covarianzas_por_par:Vec<Vec<f32>> = Vec::new();
             let mut matriz_de_correlacion:Vec<Vec<f32>> = Vec::new();
+            let mut matriz_de_correlacion2:Vec<Vec<f32>> = Vec::new();
             let mut vector_covarianzas_por_par:Vec<f32> = Vec::new();
             let mut matriz_temporal:Vec<Vec<f32>> = Vec::new();
+            let mut matriz_temporal2:Vec<Vec<f32>> = Vec::new();
 
             let mut acm:usize = 0;
             let mut skp:usize = 0;
@@ -113,17 +128,34 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
                 vector_medias.push( media(&vec));
             });
 
-            // vector de varianzas
-            transpuesta.clone().into_iter().for_each(|vec: Vec<f32>|{
-                tupla_tmp_f32 = varianza(&vec, &vector_medias[acm]);
-                vector_varianzas.push(tupla_tmp_f32[0]);
+            // desviacion estandar inmediata - sin usar la función 
+            // para calcular previamente la varianza
+            acm = 0;
+            transpuesta.clone().into_iter().for_each(|x:Vec<f32>|{
+                acm2_f32 = desvisacion_estd_por_vector(&x, &vector_medias[acm]);
+                vector_desviaciones_std.push(acm2_f32);
                 acm += 1;
             });
+
+
+//          acm = 0;
+//             // vector de varianzas
+//             transpuesta.clone().into_iter().for_each(|vec: Vec<f32>|{
+//                 tupla_tmp_f32 = varianza(&vec, &vector_medias[acm]);
+//                 vector_varianzas.push(tupla_tmp_f32[1]);
+//                 acm += 1;
+//             });
+
             
             // Vector de desviaciones estandar
             vector_varianzas.clone().into_iter().for_each(|varianza|{
                 vector_desviaciones_std.push( desviacion_estd(&varianza) );
             });
+
+
+           
+            
+
             
             acm = 0;
             
@@ -144,7 +176,105 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
                 vector_temporal.clear()
             });
 
+
+
             // 2.- multiplicar clumnas
+
+
+            pr_separador!("vector de medias");
+            pr_v!(vector_medias.clone());
+
+            pr_separador!("matriz_temporal");
+            pr_Vv!(matriz_temporal.clone());  
+
+            pr_separador!("----");
+            skp = 1;
+
+
+
+
+            for i in 0 .. matriz_temporal.len() - 1 {
+                for k in 0 .. matriz_temporal.len(){
+                    for j in 0 .. matriz_temporal.len() - skp {
+                        if j >= matriz_temporal.len() { continue } 
+                        //println!("[i{i}-k{k}-j{j}]");
+                        // println!("[i{i}-k{k}-j{j}] - {}*{} = {}", matriz_temporal[k][j] , matriz_temporal[k][j + skp], matriz_temporal[k][j] * matriz_temporal[k][j + skp]);
+                        vector_temporal.push(matriz_temporal[k][j] * matriz_temporal[k][j + skp]);
+                        }
+                        matriz_temporal2.push(vector_temporal.clone());
+                        vector_temporal.clear();
+                        // pr_separador!("----");
+                }
+
+                acm_f32 = 0.0;
+
+                pr_separador!("Vector temporal previo");
+                pr_v!(vector_temporal);
+                pr_separador!("matriz temporal");
+
+                pr_Vv!(matriz_temporal2.clone());
+
+                pr_separador!("matriz temporal transpuesta");
+                matriz_temporal2 = transpuestafn(&matriz_temporal2);
+                pr_Vv!(matriz_temporal2.clone());
+
+                matriz_temporal2.clone().into_iter().for_each(|x:Vec<f32>|{
+                    acm_f32 = acm_f32 + x.into_iter().fold(0f32, |x:f32, y:f32| x + y ); // ) / (matrx.len() as f32 - 1.0); 
+                    vector_temporal.push(acm_f32.clone());
+                    acm_f32 = 0.0;
+                });
+
+                acm_f32 = 0.0;
+
+                pr_separador!("... v-tmp");
+
+                pr_v!(vector_temporal);
+
+                matriz_de_correlacion.push(vector_temporal.clone());
+
+                pr_separador!("...");
+
+
+                matriz_temporal2.clear();
+                vector_temporal.clear();
+
+                skp = skp + 1;
+
+
+            }
+
+
+            pr_Vv!(matriz_de_correlacion.clone());
+            println!(".");
+            pr_Vv!( transpuestafn(&matriz_de_correlacion) );
+            println!(".");
+            pr_v!(vector_desviaciones_std);
+            
+            matriz_de_correlacion = transpuestafn(&matriz_de_correlacion);
+            
+/*
+[336.19998, -493.2, 19.399994, 102.0]
+[-1320.2001, 2079.4, 212.99998, 0.0]
+[-1920.4001, -1238.0001, 0.0, 0.0]
+[889.0, 0.0, 0.0, 0.0]
+.
+[16.4, 26.4, 29.6, 38.8, 29.0]
+
+336.19998        -493.2
+---------  ,  -------------, 
+16.4 x26.4     16.4 x 29.6
+
+
+
+
+*/
+
+
+
+            return matriz_covarianzas_por_par;  
+
+
+
             skp = 1;
 
             for i in 0 .. matriz_temporal.len() - 1 {
@@ -171,18 +301,21 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
                 // 3.- tranponer 
                 matriz_covarianzas_por_par = transpuestafn(&matriz_covarianzas_por_par.clone());
 
-                pr_separador!("Matriz de matriz_covarianzas_por_par: ");
-                pr_Vv!(matriz_covarianzas_por_par.clone());
+//                pr_separador!("Matriz de matriz_covarianzas_por_par: ");
+//                pr_Vv!(matriz_covarianzas_por_par.clone());
 
 
                 for i in matriz_covarianzas_por_par.clone().into_iter(){
                     acm2_f32 = i.into_iter().fold(0f32, |x:f32, y:f32| x + y);  // 4.- sumar columnas
-                    pr_separador!(acm2_f32);
+                    // pr_separador!(acm2_f32);
                     vector_covarianzas_por_par.push(acm2_f32 / matrx.len() as f32  - 1.0  );    // 5.- dividir entre largo de la matriz original
                 }
                 matriz_covarianzas_por_par.clear();
                 skp += 1;
-            }
+            }   
+
+            
+            
 
             vector_temporal.clear();
 
@@ -201,11 +334,11 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
                 vector_temporal.clear();
             }
 
-            pr_separador!("vector de covarianzas");
-            pr_v!(vector_covarianzas_por_par);
-
-            pr_separador!("vector de desviaciones estandar");
-            pr_v!(vector_desviaciones_std);
+//             pr_separador!("vector de covarianzas");
+//             pr_v!(vector_covarianzas_por_par);
+// 
+//             pr_separador!("vector de desviaciones estandar");
+//             pr_v!(vector_desviaciones_std);
 
            
 
@@ -215,12 +348,12 @@ macro_rules! pr_separador{  ($txt:expr)=>{ println!("\n-- {} -------------------
 
 
 
-//             pr_separador!();
-//             pr_v!(vector_medias);
+             pr_separador!("vector de medias");
+             pr_v!(vector_medias);
 //             pr_separador!();
 //             pr_v!(vector_varianzas);
-//             pr_separador!();
-//             pr_v!(vector_desviaciones_std);
+             pr_separador!("desviacion estandar");
+             pr_v!(vector_desviaciones_std);
 //             pr_separador!();
 //             pr_v!(acm);
 //              pr_separador!("Vector temporal = Con la resta de la media por variable a plicado a las columnas"); 

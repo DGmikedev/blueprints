@@ -68,6 +68,13 @@ fn main() {
     // factor de correlación matricial
 
     let mut matriz: Vec<Vec<f32>> = vec![
+        vec![ 3.0, 7.0,  11.0 ],
+        vec![ 5.0, 9.0,  15.0 ],
+        vec![ 7.0, 13.0, 19.0 ]
+    ];
+
+/*
+    let mut matriz: Vec<Vec<f32>> = vec![
         vec![10.0, 12.0, 91.0, 18.0, 13.0, 14.0, 10.0, 15.0],
         vec![18.0, 13.0, 16.0, 12.0, 17.0, 19.0, 14.0, 12.0],
         vec![14.0, 10.0, 13.0, 91.0, 41.0, 51.0, 12.0, 02.0],
@@ -78,7 +85,7 @@ fn main() {
         vec![04.0, 30.0, 33.0, 27.0, 31.0, 26.0, 34.0, 36.29]
         //  [12.5, 29.7, 35.3, 34.5, 32.1, 25.0, 23.1, 27.41]  // media
         //  [12.5  29.7, 35.3, 34.5, 32.1, 25.0, 23.1, 27.41]  <-- comprobacion OK
-            
+*/
         //  [42.0, 557, 914,  836,  229,  203.5, 771,  629]   // varianza
         //  [42.0, 557, 914,  836,  229,  203.5, 771,  629]   <--  comprobacion OK
 
@@ -112,7 +119,7 @@ fn main() {
 
 
 
-        ];
+//        ];
 
         let matriz_5: Vec<Vec<f32>> = vec! [
             vec![10.0, 12.0, 91.0, 18.0, 13.0],
@@ -124,14 +131,49 @@ fn main() {
 
 
 
-    //     let transp: Vec<Vec<f32>> = estadistica:: correlacion_matriz(&matriz_5);
-    let transp: Vec<Vec<f32>> = estadistica:: correlacion_matriz(&matriz);
+         let transp: Vec<Vec<f32>> = estadistica:: correlacion_matriz(&matriz_5);
+    //  let transp: Vec<Vec<f32>> = estadistica:: correlacion_matriz(&matriz);
     // for i in transp.clone().into_iter(){
     //     println!("{i:?}")
     // }
 // 
     // println!("{transp:?}");
 /*
+ X  1           2         3            4          5
+ 1  X         336.19998  -493.2       19.399994  102.0
+ 2  336.19998   X        -1320.2001
+ 3  -493.2   -1320.2001   X   
+ 4
+ 5
+
+
+  1 y 2        2 y 3         3 y 4        4 y 5
+ 336.19998,   -1320.2001,   -1920.4001,   889.0
+
+1 y 3          2 y 4         3 y 5
+[-493.2,      2079.4,      -1238.0001]
+
+ 1 y 4        2 y 5
+ 19.399994,   212.99998
+
+1 y 5
+102.0
+
+
+
+
+[   X  -    336.19998, -1320.2001, -1920.4001, 889.0 ]
+ 336.19998,     X
+-1320.2001, 
+-1920.4001, 
+ 889.0 
+
+
+
+
+
+
+
     println!("\nESTADISTICA::::::::::::::::::::::::::
            Datos: {valores:?} , {valores2:?}
            Media (μ): {media}
