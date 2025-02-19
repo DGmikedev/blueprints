@@ -1,3 +1,86 @@
+mod tokens;
+
+
+fn main(){
+    
+
+    let token:String = tokens::genera_token(24);
+    println!("{token}");
+
+}
+
+/*
+use std::f32;
+
+// Función para calcular la media de un vector
+fn mean(v: &[f32]) -> f32 {
+    v.iter().sum::<f32>() / v.len() as f32
+}
+
+// Función para calcular la desviación estándar de un vector
+fn stddev(v: &[f32], mean: f32) -> f32 {
+    let variance = v.iter().map(|&x| (x - mean).powi(2)).sum::<f32>() / v.len() as f32;
+    variance.sqrt()
+}
+
+// Función para calcular la covarianza entre dos vectores
+fn covariance(v1: &[f32], v2: &[f32], mean1: f32, mean2: f32) -> f32 {
+    v1.iter().zip(v2.iter())
+        .map(|(&x1, &x2)| (x1 - mean1) * (x2 - mean2))
+        .sum::<f32>() / v1.len() as f32
+}
+
+// Función para calcular la matriz de correlación
+fn correlation_matrix(matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
+    let n = matrix.len();
+    let mut corr_matrix = vec![vec![0.0; n]; n];
+    
+    // Calcular la correlación entre cada par de filas
+    for i in 0..n {
+        for j in i..n {
+            let mean_i = mean(&matrix[i]);
+            let mean_j = mean(&matrix[j]);
+            let stddev_i = stddev(&matrix[i], mean_i);
+            let stddev_j = stddev(&matrix[j], mean_j);
+            let cov = covariance(&matrix[i], &matrix[j], mean_i, mean_j);
+            let correlation = if stddev_i != 0.0 && stddev_j != 0.0 {
+                cov / (stddev_i * stddev_j)
+            } else {
+                0.0 // Si la desviación estándar es 0, la correlación es indefinida (tratado como 0)
+            };
+            
+            // Asignar el valor en la matriz (simétrica)
+            corr_matrix[i][j] = correlation;
+            corr_matrix[j][i] = correlation;
+        }
+    }
+    
+    corr_matrix
+}
+
+fn main() {
+    // Ejemplo de matriz 3x3
+    let matrix: Vec<Vec<f32>> = vec![
+        vec![1.85, 2.2, 1.0],
+        vec![3.5, 1.74, 2.1],
+        vec![5.0, 2.0, 3.0],
+    ];
+    
+    let corr_matrix = correlation_matrix(&matrix);
+    
+    // Imprimir la matriz de correlación
+    for row in corr_matrix {
+        for val in row {
+            print!("{:.3} ", val);
+        }
+        println!();
+    }
+}
+*/
+
+
+
+/*
 mod estadistica;
 mod tokens;
 mod vectorial;
@@ -187,3 +270,4 @@ fn main() {
 */
 }
 
+*/
