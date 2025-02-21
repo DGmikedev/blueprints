@@ -181,29 +181,6 @@ fn rango(vector:&Vec<f32>)-> f32{
     return maximo - minimo
 }
 
-/*
-fn main() {
-    let vec: Vec<f32> = vec![10.5, 23.3, 5.7, 17.2, 42.9];
-
-    // Obtener el valor máximo
-    if let Some(&max_value) = vec.iter().max_by(|a, b| a.partial_cmp(b).unwrap()) {
-        println!("Valor máximo: {}", max_value);
-    } else {
-        println!("El vector está vacío");
-    }
-
-    // Obtener el valor mínimo
-    if let Some(&min_value) = vec.iter().min_by(|a, b| a.partial_cmp(b).unwrap()) {
-        println!("Valor mínimo: {}", min_value);
-    } else {
-        println!("El vector está vacío");
-    }
-}
-
-
-*/
-
-
 #[doc=r"Devuelve un vector<V<V<f32>> de vectores referenciado, asemejando una matriz, esta matriz devuleta será transpuesta"]
 fn transpuestafn( arr:&Vec<Vec<f32>> )->Vec<Vec<f32>>{
 
