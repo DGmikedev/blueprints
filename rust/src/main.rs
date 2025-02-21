@@ -11,7 +11,7 @@ fn main(){
     //let token:String = tokens::genera_token(24);
     //println!("{token}");
 
-    let vector: Vec<f32> = vec![ 1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 4.0, 4.0  ];
+    let vector: Vec<f32> = vec![ 1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0, 3.0  ];
 
     let media = media(&vector);
     let mediana  = mediana(&vector);
@@ -23,10 +23,38 @@ fn main(){
     let minimo:f32 = valor_minimo(&vector);
     let cef_var:f32 = coef_variacion(&desviacion_std, &media);
     let qril: Vec<f32> =  quartiles(&vector);
+    let conteo:Vec<(usize, f32)> =  conteo_vec(&vec_ord_asc(&vector) );
 
-
+        
         pr_sep!();
-        let msg: String = format!("Datos: {:?}\nMedia: {}\nMediana: {}\nModas: {:?}\nDeviacion_std: {}\nVarianzas: {:?}\nRango: {}\nValor mayor: {}\nValor minimo: {}\nCoeficiente de desviación: {}\nQuartiles: {:?} \n", vector, media, mediana, modas, desviacion_std, varianzas,rango, mayor, minimo, cef_var, qril);
+        let msg: String = format!("
+Datos: {:?}
+Conteo: {:?}
+Quartiles: {:?}
+Media: {}
+Mediana: {}
+Modas: {:?}
+Deviacion_std: {}
+Varianzas: {:?}
+Rango: {}
+Valor mayor: {}
+Valor minimo: {}
+Coeficiente de desviación: {}
+", 
+vector, 
+conteo,
+qril,
+media, 
+mediana, 
+modas, 
+desviacion_std, 
+varianzas,
+rango, 
+mayor, 
+minimo, 
+cef_var
+);
+        
         pr_sep!(msg);
 
 }
@@ -82,46 +110,21 @@ fn mediana(vector_i: &Vec<f32>)-> f32{
         números con mayor concurrencia [(concurrencias, valor)]"]
 fn moda(vector_i:&Vec<f32>)-> Vec<(usize, f32)>{
 
-    let mut vec_tuplas: Vec<(usize, f32)> = Vec::new();
+    let vec_tuplas: Vec<(usize, f32)> = conteo_vec(vector_i);
     let mut vec_tuplas2: Vec<(usize, f32)> = Vec::new();
-    let mut tupla:(usize, f32) = (0,0.0);
-    let mut n: usize = vector_i.len(); 
-    let mut acm: usize = 0;
-    let mut repeticiones: usize = 0;
-    let mut vector_tmp: Vec<f32> =  Vec::new();
+    let mut n: usize = vec_tuplas.len();
+    let mut acm: usize = vec_tuplas[0].0;
     let mut mayor_menor = true;   
- 
-    for i in 0.. n{
-        for j in acm.. n{
-            if igualf32(vector_i[i], vector_i[j]){
-                repeticiones = repeticiones + 1;
-            }
-        }
-
-        if !vector_tmp.contains(&vector_i[i]) {
-            vector_tmp.push(vector_i[i]);
-            tupla.0 = repeticiones;
-            tupla.1 = vector_i[i];
-            vec_tuplas.push(tupla); 
-        }
-
-        repeticiones = 0;
-        acm += 1;
-    }
-
-    acm = vec_tuplas[0].0;
-    n = vec_tuplas.len();
     
-
     for j in 0.. n{
         mayor_menor = acm <= vec_tuplas[j].0 ;
         if mayor_menor { 
             if acm == vec_tuplas[j].0{
                 vec_tuplas2.push(vec_tuplas[j]);
-            }else if acm < vec_tuplas[j].0{ 
+            }else if acm < vec_tuplas[j].0{
                 vec_tuplas2.clear();
                 vec_tuplas2.push(vec_tuplas[j]);
-                
+                acm = vec_tuplas[j].0;
             }
         } 
     }
@@ -187,13 +190,13 @@ pub fn coef_variacion(desv_estan:&f32, media:&f32)->f32{
     (desv_estan / media) * 100.0
 }
 
+
+#[doc=r"Retorn un Vector<[f32;3]> con tres f32 que representan v[0] = q1, v[1]= q2, v[2]= q3 los qurtiles en el vector referenciado ordenado acendentemente"]
 fn quartiles(vector:&Vec<f32>)->Vec<f32>{
 
     // Q1, Q2, Q3
     let mut qurtiles:Vec<f32> = vec![0.0, 0.0, 0.0];
-
     let vec_no_repetidos: Vec<f32> = vec_no_rptidos(vector);
-
     let mut vec_temp1:Vec<f32> = Vec::new();
     let mut vec_temp3:Vec<f32> = Vec::new();
 
@@ -210,12 +213,42 @@ fn quartiles(vector:&Vec<f32>)->Vec<f32>{
     qurtiles[0] = mediana(&vec_temp1);
     qurtiles[2] = mediana(&vec_temp3);
 
-
     // ------------|---------|---------|------------
     // [0.2, 1.0, 1.5, 2.0, 3.0, 3.9, 4.0, 5.5, 6.0]
     qurtiles
 }
 
+
+#[doc=r"Retorna un vectorV<tuplas(unsize, f32)> de tuplas con los valores en orden asc y el numero de aparciones en el vector de datos"]
+fn conteo_vec(vector: &Vec<f32>)-> Vec<(usize, f32)>{
+
+    let mut vec_tuplas: Vec<(usize, f32)> = Vec::new();
+    let mut tupla:(usize, f32) = (0,0.0);
+    let n: usize = vector.len(); 
+    let mut acm: usize = 0;
+    let mut repeticiones: usize = 0;
+    let mut vector_tmp: Vec<f32> =  Vec::new();
+
+    for i in 0.. n{
+        for j in acm.. n{
+            if igualf32(vector[i], vector[j]){
+                repeticiones = repeticiones + 1;
+            }
+        }
+
+        if !vector_tmp.contains(&vector[i]) {
+            vector_tmp.push(vector[i]);
+            tupla.0 = repeticiones;
+            tupla.1 = vector[i];
+            vec_tuplas.push(tupla); 
+        }
+
+        repeticiones = 0;
+        acm += 1;
+    }
+   
+    vec_tuplas
+}
 
 
 #[doc=r"Devuelve un vector<V<V<f32>> de vectores referenciado, asemejando una matriz, esta matriz devuleta será transpuesta"]
