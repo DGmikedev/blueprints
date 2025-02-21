@@ -7,7 +7,6 @@ mod mc_format; // formato de impresion
 
 fn main(){
 
-
     // EJEMPLOS -- BORRAR AL FINAL DEL TEST
     //let token:String = tokens::genera_token(24);
     //println!("{token}");
@@ -22,11 +21,14 @@ fn main(){
     let rango:f32 = rango(&vector);
     let mayor:f32 = valor_maximo(&vector);
     let minimo:f32 = valor_minimo(&vector);
+    let cef_var:f32 = coef_variacion(&desviacion_std, &media);
+    let qril: Vec<f32> =  quartiles(&vector);
 
 
-   pr_sep!();
-   let msg: String = format!("Datos: {:?}\nMedia: {}\nMediana: {}\nModas: {:?}\nDeviacion_std: {}\nVarianzas: {:?}\nRango: {}\nValor mayor: {}\nValor minimo: {} \n", vector, media, mediana, modas, desviacion_std, varianzas,rango, mayor, minimo);
-   pr_sep!(msg);
+        pr_sep!();
+        let msg: String = format!("Datos: {:?}\nMedia: {}\nMediana: {}\nModas: {:?}\nDeviacion_std: {}\nVarianzas: {:?}\nRango: {}\nValor mayor: {}\nValor minimo: {}\nCoeficiente de desviación: {}\nQuartiles: {:?} \n", vector, media, mediana, modas, desviacion_std, varianzas,rango, mayor, minimo, cef_var, qril);
+        pr_sep!(msg);
+
 }
 
 
@@ -170,9 +172,7 @@ fn valor_minimo(vec:&Vec<f32>)-> f32{
             .min_by(|a,b| a.partial_cmp(b).unwrap()){
         minimo = valor_minimo.clone();
         return minimo
-    }else{ 
-        return minimo
-    }
+    } else{ return minimo }
 }
 #[doc=r"Devuelve el rango el mayor<f32> - el menor<f32> de un vector<f32> referenciado"]
 fn rango(vector:&Vec<f32>)-> f32{
@@ -180,6 +180,43 @@ fn rango(vector:&Vec<f32>)-> f32{
     let minimo = valor_minimo(vector);
     return maximo - minimo
 }
+
+
+#[doc=r"Devuelve le calculo del coefeicinte de variacón en un f32"]
+pub fn coef_variacion(desv_estan:&f32, media:&f32)->f32{
+    (desv_estan / media) * 100.0
+}
+
+fn quartiles(vector:&Vec<f32>)->Vec<f32>{
+
+    // Q1, Q2, Q3
+    let mut qurtiles:Vec<f32> = vec![0.0, 0.0, 0.0];
+
+    let vec_no_repetidos: Vec<f32> = vec_no_rptidos(vector);
+
+    let mut vec_temp1:Vec<f32> = Vec::new();
+    let mut vec_temp3:Vec<f32> = Vec::new();
+
+    qurtiles[1] = mediana(&vec_no_repetidos);
+
+    for i in vector.iter(){
+
+        if i < &qurtiles[1]{ vec_temp1.push(*i) }
+
+        else if i > &qurtiles[1]{ vec_temp3.push(*i)  }
+
+    }
+
+    qurtiles[0] = mediana(&vec_temp1);
+    qurtiles[2] = mediana(&vec_temp3);
+
+
+    // ------------|---------|---------|------------
+    // [0.2, 1.0, 1.5, 2.0, 3.0, 3.9, 4.0, 5.5, 6.0]
+    qurtiles
+}
+
+
 
 #[doc=r"Devuelve un vector<V<V<f32>> de vectores referenciado, asemejando una matriz, esta matriz devuleta será transpuesta"]
 fn transpuestafn( arr:&Vec<Vec<f32>> )->Vec<Vec<f32>>{
