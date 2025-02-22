@@ -11,8 +11,20 @@ fn main(){
     //let token:String = tokens::genera_token(24);
     //println!("{token}");
 
-    let vector: Vec<f32> = vec![ 1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0, 3.0  ];
 
+    // TODO: REVISAR LOS PERCENTILES
+   
+
+    let vector: Vec<f32> = vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 
+                                3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0, 
+                                1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 
+                                3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0];
+    // vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0];
+    //vec![16.000, 18.000, 18.000, 20.000, 21.000, 21.000, 22.000, 23.000, 24.000, 24.000, 25.000, 26.000, 28.000];
+    // 16.000, 18.000, 18.000, 20.000, 21.000, 21.000, 22.000, 23.000, 24.000, 24.000, 25.000, 26.000, 28.000
+    // vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0, 1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0, 3.0  ];
+                                
+ 
     let media = media(&vector);
     let mediana  = mediana(&vector);
     let modas:Vec<(usize, f32)> = moda(&vector);
@@ -24,6 +36,7 @@ fn main(){
     let cef_var:f32 = coef_variacion(&desviacion_std, &media);
     let qril: Vec<f32> =  quartiles(&vector);
     let conteo:Vec<(usize, f32)> =  conteo_vec(&vec_ord_asc(&vector) );
+//    percentiles(&vector, &30.0);
 
         
         pr_sep!();
@@ -58,7 +71,6 @@ cef_var
         pr_sep!(msg);
 
 }
-
 
 // SECCIÓN ESTADISTICA
 
@@ -99,7 +111,6 @@ fn mediana(vector_i: &Vec<f32>)-> f32{
     let mut med: f32 = 0.0;
     let vector: Vec<f32> = vec_ord_asc(vector_i);
     let n: usize = vector.len();
-  
     if n%2 == 0 { med = (vector[( n/2 )-1] + vector[n/2]) / 2f32}
     else{ med = vector[( (n+1)/2 ) - 1] }
 
@@ -190,7 +201,6 @@ pub fn coef_variacion(desv_estan:&f32, media:&f32)->f32{
     (desv_estan / media) * 100.0
 }
 
-
 #[doc=r"Retorn un Vector<[f32;3]> con tres f32 que representan v[0] = q1, v[1]= q2, v[2]= q3 los qurtiles en el vector referenciado ordenado acendentemente"]
 fn quartiles(vector:&Vec<f32>)->Vec<f32>{
 
@@ -203,9 +213,7 @@ fn quartiles(vector:&Vec<f32>)->Vec<f32>{
     qurtiles[1] = mediana(&vec_no_repetidos);
 
     for i in vector.iter(){
-
         if i < &qurtiles[1]{ vec_temp1.push(*i) }
-
         else if i > &qurtiles[1]{ vec_temp3.push(*i)  }
 
     }
@@ -216,6 +224,32 @@ fn quartiles(vector:&Vec<f32>)->Vec<f32>{
     // ------------|---------|---------|------------
     // [0.2, 1.0, 1.5, 2.0, 3.0, 3.9, 4.0, 5.5, 6.0]
     qurtiles
+}
+
+fn percentiles(vector_i: &Vec<f32>, perc:&f32){
+
+    
+
+    let vector = vec_ord_asc(vector_i);
+    let pos_calculada: f32 =  90f32/100f32 * ( (vector.len() as f32 - 1f32)  + 1f32 ) ;
+    let mut promedio:f32 = 0.0;
+
+
+    println!("{}", igualf32(pos_calculada % 2f32, 0f32) );
+
+    if igualf32(pos_calculada % 2f32, 0f32){
+        promedio = pos_calculada / 2f32;
+        promedio =  vector[promedio as usize];
+    }else{
+        let valor_posicion_1:f32 = vector[pos_calculada.floor() as usize];
+        let valor_posicion_2:f32 = vector[pos_calculada.floor() as usize + 1];
+        let posicion_1:usize = pos_calculada.floor() as usize;  
+        let posicion_2:usize = pos_calculada.floor() as usize + 1; 
+        promedio =   valor_posicion_1 + ( pos_calculada - posicion_1 as f32) * ( (valor_posicion_2 - valor_posicion_1 ) / (posicion_2 as f32 - posicion_1 as f32)  );
+    }
+
+    println!("{:?}", vector);
+    println!("{pos_calculada} - {promedio}");
 }
 
 
@@ -271,7 +305,7 @@ fn igualf32(a: f32, b: f32) -> bool {
 }
 
 
-// DATA
+// FUNCIONES USADAS
 // | vec     |.sum()  -> suma
 // | mut vec |.sort_by(|a,b| a.partial_cmp(b).unwrap() ); -> ordena menor a mayor f32
 // | mut vec |.sort_by(|a,b| b.partial_cmp(a).unwrap() ); -> ordena mayor a menor f32
@@ -280,10 +314,3 @@ fn igualf32(a: f32, b: f32) -> bool {
 // | vec     |let mut hashmap: HashMap<K, V>= HashMap::new(); -> declara u hashmap -> fn nombre_funcion<K, V> determinar el contexto
 // | vec     |if let Some(&valor_maximo) = vec.iter().max_by(|a,b| a.partial_cmp(b).unwrap()){   -> Some es un contenedor de respuesta si es exitoso lo guarda en &valor_maximo del if
 // |         |y si no lo guarda en el else,  ->max_by(|a,b| a.prtial_cmp(b)...)  obtiene el maximo comparando parcialmete a y b
-
-
-
-
-
-
- 
