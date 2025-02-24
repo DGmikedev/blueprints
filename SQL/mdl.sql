@@ -1,4 +1,5 @@
-CREATE TABLE USER(
+CREATE TABLE USER
+(
   id int auto_increment primary key,
   activated bool NOT NULL,
   name varchar(30) NOT NULL,
@@ -8,7 +9,33 @@ CREATE TABLE USER(
   date_born date NOT NULL,
   date_sign date NOT NULL,
   mail varchar(150) NOT NULL
-  )
+);
+
+-- INSERT 
+INSERT INTO USER 
+( 
+  id,
+  activated,
+  name,
+  middle_name,
+  last_name,
+  age,
+  date_born,
+  date_sign,
+  mail
+) 
+VALUES 
+(
+  1, 
+  true, 
+  "USER NAME NO 1",
+  "USER MIDDLE NAME NO 1",
+  "USER LAST NAME NO 1",
+  30,
+  '2020-02-12',
+  '2020-02-12',
+  "USERNO1@MAIL.COM"
+);
   
   
   
