@@ -36,8 +36,11 @@ VALUES
   '2020-02-12',
   "USERNO1@MAIL.COM"
 );
-  
-  
+
+-- UPDATE TABLE
+UPDATE USER 
+SET    name = "USER NAME UPDATE"
+WHERE  id = 1
   
   
  /*        
