@@ -15,12 +15,21 @@ fn main(){
     // TODO: REVISAR LOS PERCENTILES
    
 
-    let vector: Vec<f32> = vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 
-                                3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0, 
-                                1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 
-                                3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0];
-    // vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0];
-    //vec![16.000, 18.000, 18.000, 20.000, 21.000, 21.000, 22.000, 23.000, 24.000, 24.000, 25.000, 26.000, 28.000];
+    let vector: Vec<f32>  = vec![3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0];
+    let vector2: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+    // [0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 0.1];
+    // [2.2, 3.0, 4.0, 5.0, 2.5, 3.5, 4.5, 5.0, 3.0, 4.0, 0.2];
+    
+   // [0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 
+   //  3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0, 
+   //  1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 
+   //  3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0
+   // ];
+
+
+
+    // vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0];
+    // vec![16.000, 18.000, 18.000, 20.000, 21.000, 21.000, 22.000, 23.000, 24.000, 24.000, 25.000, 26.000, 28.000];
     // 16.000, 18.000, 18.000, 20.000, 21.000, 21.000, 22.000, 23.000, 24.000, 24.000, 25.000, 26.000, 28.000
     // vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0, 1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0, 3.0  ];
                                 
@@ -36,6 +45,11 @@ fn main(){
     let cef_var:f32 = coef_variacion(&desviacion_std, &media);
     let qril: Vec<f32> =  quartiles(&vector);
     let conteo:Vec<(usize, f32)> =  conteo_vec(&vec_ord_asc(&vector) );
+    let factor_corr_pearson:f32 = fctr_corrlcn_pearson(&vector, &vector2);
+
+    let factor_corr_spearman:f32 = fctr_corrlcn_spearman(&vector, &vector2);
+
+
 //    percentiles(&vector, &30.0);
 
         
@@ -53,6 +67,7 @@ Rango: {}
 Valor mayor: {}
 Valor minimo: {}
 Coeficiente de desviación: {}
+Factor de correlación: {}
 ", 
 vector, 
 conteo,
@@ -65,14 +80,18 @@ varianzas,
 rango, 
 mayor, 
 minimo, 
-cef_var
+cef_var,
+factor_corr_pearson
 );
         
-        pr_sep!(msg);
+        // pr_sep!(msg);
 
 }
 
 // SECCIÓN ESTADISTICA
+
+
+// CALCULOS DESCRIPTIVOS
 
 #[doc=r"Devuelve el calculo de la media de un vector<f32> referenciado"]
 fn media(vector :&Vec<f32>)->f32{ 
@@ -285,6 +304,137 @@ fn conteo_vec(vector: &Vec<f32>)-> Vec<(usize, f32)>{
 }
 
 
+// ANALSIS DE CORRELACIÓN
+
+#[doc=r"Devuelve el coeficiente de correlació de Pearson en un f32 de dos vectores<f32> referenciados"]
+pub fn fctr_corrlcn_pearson(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
+    
+    let mut vec_x: Vec<f32> = Vec::new();
+    let mut vec_y: Vec<f32> = Vec::new();
+    
+    let mut sum_xe2: f32 = 0.0;
+    let mut sum_ye2: f32 = 0.0;
+    
+    let mut xy:f32 = 0.0;
+    
+    // # pares de datos
+    let n = val.len() as f32;
+    
+    // media de los vectores
+    let med_x:f32 =  val.iter().fold(0f32,|x:f32, y:&f32|x+y) / n;
+    let med_y:f32 = val2.iter().fold(0f32,|x:f32, y:&f32|x+y) / n;
+    
+    // diferencias en vector
+    for i in val.iter(){ vec_x.push(i - med_x) }
+    for i in val2.iter(){ vec_y.push(i - med_y ) }
+    
+    // sum del producto de vectores  € (x-x^p)(y-y^p)
+    for i in 0..n as i32{ xy += vec_x[i as usize] * vec_y[i as usize] }
+    
+    // sumatoria de cuadrados
+    vec_x.clone().into_iter().for_each(|x:f32|{ sum_xe2 += x.powi(2) });
+    vec_y.clone().into_iter().for_each(|y:f32|{ sum_ye2 += y.powi(2) });
+    
+    // aplicando formula
+    let res = xy / (sum_xe2 * sum_ye2).sqrt();
+    
+    res
+    
+    }
+
+    #[doc=r"Devuelve el coeficiente de correlació de Spearman en un f32 de dos vectores<f32> referenciados"]
+pub fn fctr_corrlcn_spearman(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
+
+    let mut acm: f32 = 1.0;
+    let mut acm_tmp: f32 = 0.0;
+    let mut vec_pro:  Vec<(usize, f32)> = Vec::new();
+    let mut vec_pro2: Vec<(usize, f32)> = Vec::new();
+    let mut rangos: Vec<f32> = Vec::new();
+    let vec_1: Vec<(usize, f32)> = conteo_vec( &vec_ord_asc(val ) );
+    let vec_2: Vec<(usize, f32)> = conteo_vec( &vec_ord_asc(val2 ) );
+    
+    let mut vec_cn_rangos:  Vec<(usize,f32)> = Vec::new();
+    let mut vec_cn_rangos2: Vec<(usize,f32)> = Vec::new();
+
+    for i in 0..val.len(){
+        vec_cn_rangos.push((i, val[i]));
+        vec_cn_rangos2.push((i, val2[i]));
+    }
+
+    println!("{vec_cn_rangos:?} \n {vec_cn_rangos2:?}");
+
+
+/*
+    for i in 0..vec_1.len(){
+        if vec_1[i].0 != 1 {
+            for j in 0..vec_1[i].0{
+                acm_tmp += acm;
+                acm += 1f32;
+            }
+            for j in 0..vec_1[i].0{ vec_pro.push((i,acm_tmp as f32/vec_1[i].0 as f32) ); }
+            acm_tmp = 0.0;
+            continue
+        }
+        vec_pro.push((i,acm));
+        acm += 1f32;
+    }
+
+    acm = 1.0;
+    acm_tmp = 0.0;
+
+    for i in 0..vec_2.len(){
+        if vec_2[i].0 != 1 {
+            for j in 0..vec_2[i].0{
+                acm_tmp += acm;
+                acm += 1f32;
+            }
+            for j in 0..vec_2[i].0{ vec_pro2.push((i, acm_tmp as f32/vec_2[i].0 as f32) ) }
+            acm_tmp = 0.0;
+            continue
+        }
+        vec_pro2.push((i,acm));
+        acm += 1f32;
+    }
+
+    acm = 0.0;
+    let n: f32 = val.len() as f32;
+
+    for i in 0..vec_pro.len(){
+        rangos.push(vec_pro[i].1 - vec_pro2[i].1);
+        // acm += (vec_pro[i] - vec_pro2[i]).powi(2);
+        // println!("{} {} {acm}", vec_pro[i], vec_pro2[i]);
+    }
+
+    println!("----\n{rangos:?}\n-----");
+    // println!("{}", ( 6f32 * acm ));
+
+    acm = 1f32 - ( ( 6f32 * acm ) / (n * ( n.powi(2) - 1f32 ) ) );
+    
+    println!("{}", 1f32-acm);
+    // println!("{}", (n * ( n.powi(2) - 1f32 ) ) );
+    // acm_tmp = 1f32 - ( ( 6f32 * acm ) / (n * ( n.powi(2) - 1f32 ) ) );
+  
+     println!("{:?}",vec_pro);
+     println!("{:?}",vec_pro2);
+// 
+// 
+   //  print!("--{acm_tmp}");
+// 
+*/
+    3.0
+    }
+
+
+
+
+
+
+
+
+
+
+
+// UTILSS
 #[doc=r"Devuelve un vector<V<V<f32>> de vectores referenciado, asemejando una matriz, esta matriz devuleta será transpuesta"]
 fn transpuestafn( arr:&Vec<Vec<f32>> )->Vec<Vec<f32>>{
 
@@ -307,6 +457,7 @@ fn igualf32(a: f32, b: f32) -> bool {
 
 // FUNCIONES USADAS
 // | vec     |.sum()  -> suma
+// | vAL     |.powi(2)  -> Exponente al cuadrado
 // | mut vec |.sort_by(|a,b| a.partial_cmp(b).unwrap() ); -> ordena menor a mayor f32
 // | mut vec |.sort_by(|a,b| b.partial_cmp(a).unwrap() ); -> ordena mayor a menor f32
 // | respons |.unwrap() -> extrae el resultado, es un tipo Option
