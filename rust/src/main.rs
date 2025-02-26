@@ -3,7 +3,7 @@ mod tokens;
 mod mc_format; // formato de impresion
 
 // añadir al modulo de estadistica
-// use std::collections::HashMap;
+use std::collections::HashMap;
 
 fn main(){
 
@@ -15,8 +15,8 @@ fn main(){
     // TODO: REVISAR LOS PERCENTILES
    
 
-    let vector: Vec<f32>  = vec![3.0, 3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 4.0, 5.5, 6.0];
-    let vector2: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+    let vector: Vec<f32> =   vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+    let vector2: Vec<f32>  = vec![3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 5.5, 6.0, 3.0, 4.0];
     // [0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 0.1];
     // [2.2, 3.0, 4.0, 5.0, 2.5, 3.5, 4.5, 5.0, 3.0, 4.0, 0.2];
     
@@ -25,8 +25,6 @@ fn main(){
    //  1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0, 
    //  3.0, 6.0, 5.5, 3.9, 0.2, 4.0, 4.0, 3.0, 4.0, 4.0
    // ];
-
-
 
     // vec![0.2, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0];
     // vec![16.000, 18.000, 18.000, 20.000, 21.000, 21.000, 22.000, 23.000, 24.000, 24.000, 25.000, 26.000, 28.000];
@@ -66,8 +64,9 @@ Varianzas: {:?}
 Rango: {}
 Valor mayor: {}
 Valor minimo: {}
-Coeficiente de desviación: {}
-Factor de correlación: {}
+Coeficiente de variación: {}
+Factor de correlación pearson: {}
+Factor de correlación spearman: {}
 ", 
 vector, 
 conteo,
@@ -81,10 +80,11 @@ rango,
 mayor, 
 minimo, 
 cef_var,
-factor_corr_pearson
+factor_corr_pearson,
+factor_corr_spearman
 );
         
-        // pr_sep!(msg);
+        pr_sep!(msg);
 
 }
 
@@ -109,7 +109,7 @@ fn vec_ord_dec(vector_i:&Vec<f32>)->Vec<f32>{
 #[doc=r"Devuelve una copia de un vector<f32> referenciado acomodado en orden ascendente"] 
 fn vec_ord_asc(vector_i:&Vec<f32>)->Vec<f32>{
     let mut vector = vector_i.clone();
-    vector.sort_by(|a,b| a.partial_cmp(b).unwrap() );
+    vector.sort_by(|a,b| { a.partial_cmp(b).unwrap() });
     vector
 }
 
@@ -342,86 +342,83 @@ pub fn fctr_corrlcn_pearson(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
     
     }
 
-    #[doc=r"Devuelve el coeficiente de correlació de Spearman en un f32 de dos vectores<f32> referenciados"]
-pub fn fctr_corrlcn_spearman(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
+pub fn vec_ord_asc_usize(vector: &Vec<usize>)->Vec<usize>{
+
+    let mut vec_c= vector.clone();
+    vec_c.sort_by(|a,b| a.cmp(b) );
+
+    vec_c
+}
+
+#[doc=r"Funcion que devuelve un vector<f32> con el listado de rangos f32, esta funcion es solo para apoyo de la función 'fctr_corrlcn_spearman'"]
+fn ajusta_rango(vec_l:&Vec<(usize, f32)>)->Vec<f32>{
 
     let mut acm: f32 = 1.0;
     let mut acm_tmp: f32 = 0.0;
-    let mut vec_pro:  Vec<(usize, f32)> = Vec::new();
-    let mut vec_pro2: Vec<(usize, f32)> = Vec::new();
-    let mut rangos: Vec<f32> = Vec::new();
+    let mut vec_pro: Vec<f32> = Vec::new();
+
+    // con un vector que contiene tupoas [(veces que aparace el valor, valor)...()]
+    //                                    [(5, 2.3)] aparece 5 veces el numero 3.2
+    for i in 0..vec_l.len(){
+        
+        if vec_l[i].0 != 1 {  // Si tiene más de un valor hace el promedio
+            for j in 0..vec_l[i].0{
+                acm_tmp += acm;
+                acm += 1f32;
+            }
+            // una vez el promedio hecho lo guarda en orden de numeros repetidos
+            for j in 0..vec_l[i].0{ vec_pro.push( acm_tmp as f32/vec_l[i].0 as f32 ) }
+            acm_tmp = 0.0;
+            continue
+        }
+        // si no hay más de un elemento guarda el rango que le corresponde
+        vec_pro.push(acm);
+        acm += 1f32;
+    }
+    vec_pro
+}
+
+
+#[doc=r"Devuelve el coeficiente de correlació de Spearman en un f32 de dos vectores<f32> referenciados"]
+pub fn fctr_corrlcn_spearman(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
+    
+    // contiene tuplas con # de apariciones y el valor ordenadas de menor a mayor
+    // [(5,1.0),...()] 
     let vec_1: Vec<(usize, f32)> = conteo_vec( &vec_ord_asc(val ) );
     let vec_2: Vec<(usize, f32)> = conteo_vec( &vec_ord_asc(val2 ) );
+
+    // Aqui se obteiene los rangos en orden menor a mayor
+    let mut vec_pro: Vec<f32> = ajusta_rango(&vec_1);
+    let mut vec_pro2: Vec<f32> = ajusta_rango(&vec_2);
     
-    let mut vec_cn_rangos:  Vec<(usize,f32)> = Vec::new();
-    let mut vec_cn_rangos2: Vec<(usize,f32)> = Vec::new();
-
-    for i in 0..val.len(){
-        vec_cn_rangos.push((i, val[i]));
-        vec_cn_rangos2.push((i, val2[i]));
-    }
-
-    println!("{vec_cn_rangos:?} \n {vec_cn_rangos2:?}");
-
-
-/*
-    for i in 0..vec_1.len(){
-        if vec_1[i].0 != 1 {
-            for j in 0..vec_1[i].0{
-                acm_tmp += acm;
-                acm += 1f32;
-            }
-            for j in 0..vec_1[i].0{ vec_pro.push((i,acm_tmp as f32/vec_1[i].0 as f32) ); }
-            acm_tmp = 0.0;
-            continue
-        }
-        vec_pro.push((i,acm));
-        acm += 1f32;
-    }
-
-    acm = 1.0;
-    acm_tmp = 0.0;
-
-    for i in 0..vec_2.len(){
-        if vec_2[i].0 != 1 {
-            for j in 0..vec_2[i].0{
-                acm_tmp += acm;
-                acm += 1f32;
-            }
-            for j in 0..vec_2[i].0{ vec_pro2.push((i, acm_tmp as f32/vec_2[i].0 as f32) ) }
-            acm_tmp = 0.0;
-            continue
-        }
-        vec_pro2.push((i,acm));
-        acm += 1f32;
-    }
-
-    acm = 0.0;
-    let n: f32 = val.len() as f32;
-
-    for i in 0..vec_pro.len(){
-        rangos.push(vec_pro[i].1 - vec_pro2[i].1);
-        // acm += (vec_pro[i] - vec_pro2[i]).powi(2);
-        // println!("{} {} {acm}", vec_pro[i], vec_pro2[i]);
-    }
-
-    println!("----\n{rangos:?}\n-----");
-    // println!("{}", ( 6f32 * acm ));
-
-    acm = 1f32 - ( ( 6f32 * acm ) / (n * ( n.powi(2) - 1f32 ) ) );
+    // se obtienen los indices del 0 a n
+    let mut sorted_indices: Vec<usize> = (0..val.len()).collect();
+    let mut sorted_indices2: Vec<usize> = (0..val2.len()).collect();
     
-    println!("{}", 1f32-acm);
-    // println!("{}", (n * ( n.powi(2) - 1f32 ) ) );
-    // acm_tmp = 1f32 - ( ( 6f32 * acm ) / (n * ( n.powi(2) - 1f32 ) ) );
-  
-     println!("{:?}",vec_pro);
-     println!("{:?}",vec_pro2);
-// 
-// 
-   //  print!("--{acm_tmp}");
-// 
-*/
-    3.0
+    // vectores que guardarán los rangos que s erestarán al final
+    let mut vector_valores = vec![0.0; vec_pro.len()];
+    let mut vector_valores2 = vec![0.0; vec_pro.len()];
+
+    // Se ordenan los Indices, dependiendo del valor que indican, se califican los valores
+    // y se guradan ese orden los indices
+    sorted_indices.sort_by(|&a, &b| val[a].partial_cmp(&val[b]).unwrap());
+    sorted_indices2.sort_by(|&a, &b| val2[a].partial_cmp(&val2[b]).unwrap());
+
+
+
+    for i in 0..sorted_indices2.len(){
+        vector_valores[sorted_indices[i]] = vec_pro[i];
+        vector_valores2[sorted_indices2[i]] = vec_pro2[i];
+    }
+
+    let mut valor: f32 = 0.0;
+    for i in 0..vector_valores.len(){
+        valor += (vector_valores[i] - vector_valores2[i]).powi(2);
+    }
+
+    let n= val.len();
+    1.0 - (6.0 * valor) / ((n as f32) * ((n as f32).powi(2) - 1.0))
+    
     }
 
 
@@ -465,3 +462,4 @@ fn igualf32(a: f32, b: f32) -> bool {
 // | vec     |let mut hashmap: HashMap<K, V>= HashMap::new(); -> declara u hashmap -> fn nombre_funcion<K, V> determinar el contexto
 // | vec     |if let Some(&valor_maximo) = vec.iter().max_by(|a,b| a.partial_cmp(b).unwrap()){   -> Some es un contenedor de respuesta si es exitoso lo guarda en &valor_maximo del if
 // |         |y si no lo guarda en el else,  ->max_by(|a,b| a.prtial_cmp(b)...)  obtiene el maximo comparando parcialmete a y b
+
