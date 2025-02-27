@@ -6,8 +6,8 @@
 ///  assert_eq!(is_equal, true);
 /// ```
 /// # PARAMETROS
-///  * `a` número del tipo f32 a comparar
-///  * `b` número del tipo f32 a comparar
+///  * `f32` número a comparar
+///  * `f32` número a comparar
 /// 
 /// # RETORNO
 /// * `boolean`
@@ -37,7 +37,7 @@ pub fn igualf32(a: f32, b: f32) -> bool {
 /// [(3, 1.0), (2, 2.0), (2, 3.0), (3, 1.5)]
 /// ```
 /// # PARAMETROS
-///  * `&vector` Referencia a el vector a analisar 
+///  * `&Vec<f32>` Referencia a el vector a analisar 
 ///  
 /// # RETORNO
 /// * `Vec<(usize, f32)>`
@@ -89,7 +89,7 @@ pub fn conteo_vec(vector: &Vec<f32>)-> Vec<(usize, f32)>{
 /// 
 /// let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
 /// 
-/// let est: f32 = estadistica::media(&vector);
+/// let est: f32 = media(&vector);
 /// 
 /// println!("{est}");
 ///
@@ -98,7 +98,7 @@ pub fn conteo_vec(vector: &Vec<f32>)-> Vec<(usize, f32)>{
 /// 1.75
 /// ```
 /// # PARAMETROS
-///  * `&vector` Referencia a el vector a analisar 
+///  * `&Vec<f32>` Referencia a el vector a analisar 
 ///  
 /// # RETORNO
 /// * `f32`  media del vector
@@ -119,7 +119,7 @@ pub fn media(vector :&Vec<f32>)->f32{
 /// 
 /// let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
 /// 
-/// let est: f32 = estadistica::media(&vector);
+/// let est: f32 = media(&vector);
 /// 
 /// println!("{est}");
 ///
@@ -128,7 +128,7 @@ pub fn media(vector :&Vec<f32>)->f32{
 /// 1.75
 /// ```
 /// # PARAMETROS
-///  * `&vector` Referencia a el vector a analisar 
+///  * `&Vec<f32>` Referencia a el vector a analisar 
 ///  
 /// # RETORNO
 /// * `f32`  media del vector
@@ -162,7 +162,7 @@ pub fn vec_ord_dec(vector_i:&Vec<f32>)->Vec<f32>{
 ///  * `&vector` Referencia a el vector a ordenar
 ///  
 /// # RETORNO
-/// * `&vector` Vector ordenado de forma ascendente
+/// * `&Vec<f32>` Vector ordenado de forma ascendente
 /// 
 /// # PANORAMICA
 /// 
@@ -182,7 +182,7 @@ pub fn vec_ord_asc(vector_i:&Vec<f32>)->Vec<f32>{
 /// 
 /// let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
 /// 
-/// let no_rptdos: Vec<f32> = estadistica::vec_no_rptidos(&vector);
+/// let no_rptdos: Vec<f32> = vec_no_rptidos(&vector);
 /// 
 /// println!("{no_rptdos:?}");
 ///
@@ -194,7 +194,7 @@ pub fn vec_ord_asc(vector_i:&Vec<f32>)->Vec<f32>{
 ///  * `&vector` Referencia a el vector a copiar y limpiar de duplicados
 ///  
 /// # RETORNO
-/// * `&vector` Copia de vector referenciado pero sin valores duplicados
+/// * `&Vec<f32>` Copia de vector referenciado pero sin valores duplicados
 /// 
 /// # PANORAMICA
 /// 
@@ -211,7 +211,32 @@ pub fn vec_no_rptidos(vector_i: &Vec<f32>)->Vec<f32>{
     vector
 }
 
-#[doc = r"* devuelve un f32 con el calculo de la mediana de un vector<f32> referenmciado"]
+/// DEVUELVE EL CALCULO DE LA MEDIANA DE UN VECTOR
+///  
+/// # EJEMPLO
+/// ```rust
+/// 
+/// let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+/// 
+/// let _mediana: f32 = mediana(&vector);
+/// 
+/// println!("{_mediana:?}");
+///
+/// ```
+/// ```bash
+/// 1.5
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia al vector al cual se le desea calcular la mediana
+///  
+/// # RETORNO
+/// * `f32` Copia de vector referenciado pero sin valores duplicados
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve un f32 con el calculo de la mediana de un vector<f32> referenmciado
+/// 
+
 pub fn mediana(vector_i: &Vec<f32>)-> f32{
 
     let mut med: f32 = 0.0;
@@ -223,8 +248,34 @@ pub fn mediana(vector_i: &Vec<f32>)-> f32{
     med
 }
 
-#[doc=r"Devuelve un vector<(unisze, f32)>  con tuplas que describen el o los 
-        números con mayor concurrencia [(concurrencias, valor)]"]
+
+/// DEVUELVE LOS VALORES CONMAYOR CONCURRENCIA DE UN VECTOR
+///  
+/// # EJEMPLO
+/// ```rust
+/// 
+/// let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+/// 
+/// let _moda: Vec<(usize,f32)> = moda(&vector);
+/// 
+/// println!("{_moda:?}");
+///
+/// ```
+/// ```bash
+/// [(3, 1.0), (3, 1.5)]
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia al vector al cual se le desea calcular la moda
+///  
+/// # RETORNO
+/// * `Vec<(usize,f32)>` vector con tuplas de concurrencías y valores
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve un vector<(unisze, f32)> con tuplas que describen el o los 
+///   números con mayor concurrencia Vec<(concurrencias, valor)>
+/// 
+
 pub fn moda(vector_i:&Vec<f32>)-> Vec<(usize, f32)>{
 
     let vec_tuplas: Vec<(usize, f32)> = conteo_vec(vector_i);
@@ -249,7 +300,35 @@ pub fn moda(vector_i:&Vec<f32>)-> Vec<(usize, f32)>{
 
 }
 
-#[doc=r"Devuelve el calculo de la desviación estandar en un f32 de un vector<f32> referenciado"]
+/// DEVUELVE EL CALCULO DE LA DESVIACIÓN ESTANDAR DE UN VECTOR REFERENCIADO Y SU MEDIA
+///  
+/// # EJEMPLO
+/// ```rust
+/// 
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+/// 
+///  let _media: f32 = media(&vector);
+/// 
+///  let _desv_std: f32 = desv_std(&vector, &_media);
+/// 
+///  println!("{_desv_std:?}");
+/// 
+/// ```
+/// ```bash
+/// 0.7546154
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia al vector al cual se le desea calcular la desviación estandar
+///  * `&f32`      Referencia al valor de la media del vector referenciado
+/// 
+/// # RETORNO
+/// * `Vec<(usize,f32)>` vector con tuplas de concurrencías y valores
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve el calculo de la desviación estandar en un f32 de un vector<f32> referenciado
+///   
+
 pub fn desv_std(val:&Vec<f32> , med: &f32) -> f32 {
 
     let mut var:f32 = 0.0;
@@ -262,7 +341,35 @@ pub fn desv_std(val:&Vec<f32> , med: &f32) -> f32 {
         var
 }
 
-#[doc=r"Devuleve un vector<f32,f32> con un vector referenciado<f32> y la media<f32> ambos referenciados"]
+/// DEVUELVE EL CALCULO DE LAS VARIANZAS POBLACIONAL Y MUESTRAL
+///  
+/// # EJEMPLO
+/// ```rust
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+///  
+///  let _media: f32 = media(&vector); 
+///  
+///  let _varianza: [f32;2] = varianza(&vector, &_media);
+///  
+///  println!("{_varianza:?}");
+/// 
+/// 
+/// ```
+/// ```bash
+/// [0.5125, 0.5694444]
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia al vector al cual se le desea calcular la varianza
+///  * `&f32`      Referencia al valor de la media del vector referenciada
+/// 
+/// # RETORNO
+/// * `[f32, f32]` vector con dos valores f32 `[poblacional , muestral]`
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuleve un vector<f32,f32> de un vector referenciado<f32> y la media<f32> ambos referenciados
+///   
+
 pub fn varianza(val:&Vec<f32> , med: &f32) -> [f32; 2] {
 
     let mut var:f32 = 0.0;
@@ -273,7 +380,32 @@ pub fn varianza(val:&Vec<f32> , med: &f32) -> [f32; 2] {
     [var /(val.len() as f32), var /(val.len() as f32 - 1f32)]
 }
 
-#[doc=r"Devuelve el valor maximo<f32> contenido en un vector<f32> referenciado"]
+/// DEVUELVE EL VALOR DE MAYOR MAGNITUD DE UN VECTOR
+///  
+/// # EJEMPLO
+/// ```rust
+///  
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+///      
+///  let _maximo: f32 = valor_maximo(&vector);
+///     
+///  println!("{_maximo:?}");
+/// 
+/// ```
+/// ```bash
+/// 3.0
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia al vector al cual se le desea calcular el valor maximo
+/// 
+/// # RETORNO
+/// * `f32` Valor de mayor magnitud en el vector referenciado
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve el valor maximo<f32> contenido en un vector<f32> referenciado
+///  
+
 pub fn valor_maximo(vec:&Vec<f32>)-> f32{
     let mut maximo: f32 = 0.0;
     if let Some(&valor_maximo) = vec.iter()
@@ -285,7 +417,32 @@ pub fn valor_maximo(vec:&Vec<f32>)-> f32{
     }
 }
 
-#[doc=r"Devuelve el valor minimo<f32> contenido en un vector<f32> referenciado"]
+/// DEVUELVE EL VALOR DE MENOR MAGNITUD DE UN VECTOR
+///  
+/// # EJEMPLO
+/// ```rust
+///  
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+///      
+///  let _maximo: f32 = valor_minimo(&vector);
+///      
+///  println!("{_maximo:?}");
+/// 
+/// ```
+/// ```bash
+/// 1.0
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia al vector al cual se le desea calcular el valor mínimo
+/// 
+/// # RETORNO
+/// * `f32` Valor de mayor magnitud en el vector referenciado
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve el valor mínimo<f32> contenido en un vector<f32> referenciado
+///  
+
 pub fn valor_minimo(vec:&Vec<f32>)-> f32{
     let mut minimo: f32 = 0.0;
     if let Some(&valor_minimo) = vec.iter()
@@ -294,20 +451,102 @@ pub fn valor_minimo(vec:&Vec<f32>)-> f32{
         return minimo
     } else{ return minimo }
 }
-#[doc=r"Devuelve el rango el mayor<f32> - el menor<f32> de un vector<f32> referenciado"]
+
+/// DEVUELVE EL CALCULO DEL RANGO DE UN VECTOR 
+///  
+/// # EJEMPLO
+/// ```rust
+///  
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+///      
+///  let _rango: f32 = rango(&vector);
+///      
+///  println!("{_rango:?}");
+/// 
+/// ```
+/// ```bash
+/// 2.0
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia al vector al cual se le desea calcular el rango
+/// 
+/// # RETORNO
+/// * `f32` valor de la diferencia entre el valor mayor y el valor mínimo
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve el rango el mayor<f32> - el menor<f32> de un vector<f32> referenciado
+///  
+
 pub fn rango(vector:&Vec<f32>)-> f32{
     let maximo = valor_maximo(vector);
     let minimo = valor_minimo(vector);
     return maximo - minimo
 }
 
+/// DEVUELVE EL COEFICIENTE DE VARIACIÓN DE UN VECTOR
+///  
+/// # EJEMPLO
+/// ```rust
+///  
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+///      
+///  let _media:f32 = media(&vector);
+///  
+///  let _dsv_std: f32 = desv_std(&vector, &_media);
+///      
+///  let _cft_variacioon: f32 = coef_variacion(&_dsv_std, &_media);
+///      
+///  println!("{_cft_variacioon:?}");
+///  
+/// ```
+/// ```bash
+/// 43.12088
+/// ```
+/// # PARAMETROS
+///  * `&f32` Referencia a un f32 con valor de la desviación estandar
+///  * `&f32` Referencia a un f32 con valor de la media de un vector
+/// 
+/// # RETORNO
+/// * `f32`   valor del coefciente de variación del par de valores desviacion estandar y media
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve le calculo del coefeicinte de variacón en un f32
+///  
 
-#[doc=r"Devuelve le calculo del coefeicinte de variacón en un f32"]
 pub fn coef_variacion(desv_estan:&f32, media:&f32)->f32{
     (desv_estan / media) * 100.0
 }
 
-#[doc=r"Retorn un Vector<[f32;3]> con tres f32 que representan v[0] = q1, v[1]= q2, v[2]= q3 los qurtiles en el vector referenciado ordenado acendentemente"]
+/// CALCULA LOS QUARTILES DE UN VECTOR
+///  
+/// # EJEMPLO
+/// ```rust
+/// 
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+    
+///  let _quartiles:Vec<f32> = estadistica::quartiles(&vector);
+
+///  println!("{_quartiles:?}");
+///  
+/// ```
+/// ```bash
+/// [1.25, 1.75, 2.5]
+/// ```
+/// # PARAMETROS
+///  *&Vec<f32>  Rferecnia al vector que se le desea calcular los quartiles
+
+/// 
+/// # RETORNO
+/// *Vec<f32>  Vector con las pociciones del calulo de los quertiles en el vector referenciado
+/// // ------------|---------|---------|------------
+///               Q1        Q2        Q3   
+/// # PANORAMICA
+/// 
+/// * Retorn un Vector<[f32;3]> con tres f32 que representan v[0] = q1, v[1]= q2, v[2]= q3 los qurtiles en el vector referenciado ordenado acendentemente
+///  
+
 pub fn quartiles(vector:&Vec<f32>)->Vec<f32>{
 
     // Q1, Q2, Q3
@@ -327,8 +566,6 @@ pub fn quartiles(vector:&Vec<f32>)->Vec<f32>{
     qurtiles[0] = mediana(&vec_temp1);
     qurtiles[2] = mediana(&vec_temp3);
 
-    // ------------|---------|---------|------------
-    // [0.2, 1.0, 1.5, 2.0, 3.0, 3.9, 4.0, 5.5, 6.0]
     qurtiles
 }
 
@@ -362,13 +599,35 @@ fn percentiles(vector_i: &Vec<f32>, perc:&f32){
 
 */
 
+/// DEVUELVE EL COEFICIENTE DE CORRELACIÓN DE PEARSON
+///  
+/// # EJEMPLO
+/// ```rust
+///  
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+///
+///  let vector2: Vec<f32>  = vec![3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 5.5, 6.0, 3.0, 4.0];
+///    
+///  let _cft_corr_pearson:f32 = estadistica::fctr_corrlcn_pearson(&vector, &vector2);
+///
+///  println!("{_cft_corr_pearson:?}");
+///
+/// ```
+/// ```bash
+/// -0.10896431
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia a un vector al cual se le quiera calcular junto con otro el coeficiente de correlación de pearson
+///  * `&Vec<f32>` Referencia a un vector al cual se le quiera calcular junto con otro el coeficiente de correlación de pearson
+/// 
+/// # RETORNO
+/// * `f32`        f32 con el valor del coefciente de correlación de pearson
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve el coeficiente de correlació de Pearson en un f32 de dos vectores<f32> referenciados
+///  
 
-
-
-
-// ANALSIS DE CORRELACIÓN
-
-#[doc=r"Devuelve el coeficiente de correlació de Pearson en un f32 de dos vectores<f32> referenciados"]
 pub fn fctr_corrlcn_pearson(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
     
     let mut vec_x: Vec<f32> = Vec::new();
@@ -413,7 +672,7 @@ pub fn vec_ord_asc_usize(vector: &Vec<usize>)->Vec<usize>{
 }
 
 #[doc=r"Funcion que devuelve un vector<f32> con el listado de rangos f32, esta funcion es solo para apoyo de la función 'fctr_corrlcn_spearman'"]
-pub fn ajusta_rango(vec_l:&Vec<(usize, f32)>)->Vec<f32>{
+fn ajusta_rango(vec_l:&Vec<(usize, f32)>)->Vec<f32>{
 
     let mut acm: f32 = 1.0;
     let mut acm_tmp: f32 = 0.0;
@@ -440,8 +699,35 @@ pub fn ajusta_rango(vec_l:&Vec<(usize, f32)>)->Vec<f32>{
     vec_pro
 }
 
+/// DEVUELVE EL COEFICIENTE DE CORRELACIÓN DE SPEARMAN
+///  
+/// # EJEMPLO
+/// ```rust
+///  
+///  let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
+///
+///  let vector2: Vec<f32>  = vec![3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 5.5, 6.0, 3.0, 4.0];
+///    
+///  let _cft_corr_spearman:f32 = estadistica::fctr_corrlcn_spearman(&vector, &vector2);
+///
+///  println!("{_cft_corr_pearson:?}");
+///
+/// ```
+/// ```bash
+/// -0.115151525
+/// ```
+/// # PARAMETROS
+///  * `&Vec<f32>` Referencia a un vector al cual se le quiera calcular junto con otro el coeficiente de correlación de spearman
+///  * `&Vec<f32>` Referencia a un vector al cual se le quiera calcular junto con otro el coeficiente de correlación de spearman
+/// 
+/// # RETORNO
+/// * `f32`        f32 con el valor del coefciente de correlación de spearman
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve el coeficiente de correlació de Spearman en un f32 de dos vectores<f32> referenciados
+///  
 
-#[doc=r"Devuelve el coeficiente de correlació de Spearman en un f32 de dos vectores<f32> referenciados"]
 pub fn fctr_corrlcn_spearman(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
     
     // contiene tuplas con # de apariciones y el valor ordenadas de menor a mayor
@@ -485,7 +771,38 @@ pub fn fctr_corrlcn_spearman(val:&Vec<f32>, val2:&Vec<f32>) -> f32 {
 
 
 // UTILSS
-#[doc=r"Devuelve un vector<V<V<f32>> de vectores referenciado, asemejando una matriz, esta matriz devuleta será transpuesta"]
+
+/// DEVUELVE LA MATRIZ TRANSPUESTA DE UNA MATRIZ DE n x n
+///  
+/// # EJEMPLO
+/// ```rust
+///  
+///  let matriz = vec![
+///     vec![1.0, 2.0, 3.0],
+///     vec![4.0, 5.0, 6.0],
+///     vec![7.0, 8.0, 9.0] ];
+///      
+///  let _transpuesta:Vec<Vec<f32>> = estadistica::transpuestafn(&matriz);
+///  
+///  for vector in _transpuesta.iter(){ println!("{vector:?}") }
+///
+/// ```
+/// ```bash
+/// [1.0, 4.0, 7.0]
+/// [2.0, 5.0, 8.0]
+/// [3.0, 6.0, 9.0]
+/// ```
+/// # PARAMETROS
+///  * `&Vec<Vec<f32>>` Referencia a una matriz de vectores al cual se le quiere sacar su transpuesta
+/// 
+/// # RETORNO
+///  * `&Vec<Vec<f32>>` Vector de vectores acomodados de forma transpuesta con referencia a la matriz ingresada
+/// 
+/// # PANORAMICA
+/// 
+/// * Devuelve un vector<Vec<Vec<f32>> de vectores referenciado, asemejando una matriz, esta matriz devuleta será transpuesta
+///  
+#[doc=r""]
 pub fn transpuestafn( arr:&Vec<Vec<f32>> )->Vec<Vec<f32>>{
 
     let high:usize = arr.len();

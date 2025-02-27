@@ -9,19 +9,15 @@ use std::collections::HashMap;
 fn main(){
 
     // EJEMPLOS -- BORRAR AL FINAL DEL TEST
+
+
     //let token:String = tokens::genera_token(24);
     //println!("{token}");
 
-
     // TODO: REVISAR LOS PERCENTILES
    
-
-    
-    let vector2: Vec<f32>  = vec![3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 5.5, 6.0, 3.0, 4.0];
-
     let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
-    let no_rptdos: Vec<f32> = estadistica::vec_no_rptidos(&vector);
-    println!("{no_rptdos:?}");
+    let vector2: Vec<f32>  = vec![3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 5.5, 6.0, 3.0, 4.0];
  
     let media:f32                =  estadistica::media(&vector);
     let mediana:f32              =  estadistica::mediana(&vector);
@@ -36,7 +32,6 @@ fn main(){
     let conteo:Vec<(usize, f32)> =  estadistica::conteo_vec(&estadistica::vec_ord_asc(&vector) );
     let factor_corr_pearson:f32  =  estadistica::fctr_corrlcn_pearson(&vector, &vector2);
     let factor_corr_spearman:f32 =  estadistica::fctr_corrlcn_spearman(&vector, &vector2);
-
 
 //    percentiles(&vector, &30.0);
 
