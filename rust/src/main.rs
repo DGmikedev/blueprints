@@ -3,10 +3,19 @@ mod tokens;
 mod mc_format; // formato de impresion
 mod estadistica;
 
+use rand::{self, Rng};
+mod seeder;
+
+
 // añadir al modulo de estadistica
 use std::collections::HashMap;
 
 fn main(){
+
+        // Insertador de regisros en tabla de ususarios
+        seeder::get_inserts("pltfrm_laravel".to_string(), "users".to_string(), 200);
+
+
 
     // EJEMPLOS -- BORRAR AL FINAL DEL TEST
 
@@ -16,6 +25,7 @@ fn main(){
 
     // TODO: REVISAR LOS PERCENTILES
    
+   /*
     let vector: Vec<f32> = vec![1.0, 2.0, 3.0, 1.0, 1.5, 1.5, 1.5, 2.0, 3.0, 1.0];
     let vector2: Vec<f32>  = vec![3.0, 3.0, 3.9, 4.0, 4.0, 4.0, 5.5, 6.0, 3.0, 4.0];
  
@@ -70,6 +80,10 @@ factor_corr_spearman
 );
         
         pr_sep!(msg);
+*/
+
+
+
 
 }
 

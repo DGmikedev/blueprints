@@ -4,7 +4,7 @@ pub fn genera_token(lon: usize )->String{
 
     // Generador de strings seguros!
     let mut clve: String = String::from("");
-    let mut rng = rand::rng();
+    let mut rng: rand::prelude::ThreadRng = rand::rng();
     
     let characters: [&str;67] =[
     "A","B","C","D","E","F","G","H","I","J",
