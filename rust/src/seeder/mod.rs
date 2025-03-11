@@ -1,5 +1,6 @@
 use rand::{self, Rng};
 use std::env;
+use std::os::windows::process;
 use std::process::Command;
 use std::process::exit;
 
@@ -184,12 +185,17 @@ pub fn get_inserts(db: String, tabla:String, num_reg:usize){
     // let mut string: String = String::from("");
 
     // INSERT MYSQL
-    let mut stringtmp: String = 
-             format!(  "INSERT INTO {}.{} 
+    
+    let mut stringtmp: String = String::from("");
+             
+
+            for i in 1 ..=num_reg{
+
+                stringtmp= format!(  "INSERT INTO {}.{} 
              ( name, email, password, remember_token, email_verified_at, created_at, updated_at )
                VALUES", db, tabla  );
 
-            for i in 1 ..=num_reg{
+
                 let name: String = "( '".to_string() + &get_name()+ &" ".to_string() + &get_mdl_lst_name() + &" ".to_string() + &get_mdl_lst_name() + &"'".to_string();
                 stringtmp.push_str(&name);
                 stringtmp.push_str(",");
@@ -204,32 +210,36 @@ pub fn get_inserts(db: String, tabla:String, num_reg:usize){
                 stringtmp.push_str(&( "'".to_string() + &get_date("-".to_string()) + &"'".to_string() ) );
                 stringtmp.push_str(",");
                 stringtmp.push_str(&( "'".to_string() + &get_date("-".to_string()) + &"'".to_string()) );
-                if i == num_reg {
-                    stringtmp.push_str(");\n");    
-                }else{
-                    stringtmp.push_str("),\n");
-                }
-                
-            }
-
-            let commando = Command::new("mysql")
+                stringtmp.push_str(");");
+                // if i == num_reg {
+                //     stringtmp.push_str(");\n");    
+                // }else{
+                //     stringtmp.push_str("),\n");
+                // }
+                let commando = Command::new("mysql")
             .arg("-u")
             .arg("root")
             .arg("-e")
-            .arg(stringtmp)
+            .arg(&stringtmp)
             .output()
             .expect("Falló al ejecutar el comando");
+            stringtmp.clear();
+            }
+
+            /*
 
             // success?
             if commando.status.success() {
                 // Si la ejecución fue exitosa, mostramos la salida
-                println!("{}", String::from_utf8_lossy(&commando.stdout));
+                println!("SALIDA EXITOSA {}", String::from_utf8_lossy(&commando.stdout));
+                exit(0);
             } else {
                 // Si ocurrió un error, mostramos el error
                 eprintln!("Error al ejecutar el comando MySQL:");
                 eprintln!("{}", String::from_utf8_lossy(&commando.stderr));
                 exit(1); // Salir con código de error 1
             }
+            */
 
 }
 

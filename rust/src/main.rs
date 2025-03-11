@@ -14,7 +14,7 @@ fn main(){
 
         // Insertador de regisros en tabla de ususarios
         seeder::get_inserts("pltfrm_laravel".to_string(), "users".to_string(), 200);
-
+        
 
 
     // EJEMPLOS -- BORRAR AL FINAL DEL TEST
