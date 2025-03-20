@@ -40,15 +40,27 @@ let datos = [
     //     let _ = editor_txt::insert_txt_by_ln(full_name.clone(),text.clone());
     // }
 */
-    println!("1 -> {}",seeder::get_int_usize(1));
-    println!("2 -> {}",seeder::get_int_usize(2));
-    println!("3 -> {}",seeder::get_int_usize(3));
-    println!("4 -> {}",seeder::get_int_usize(4));
-    println!("5 -> {}",seeder::get_int_usize(5));
-    println!("6 -> {}",seeder::get_double_or_float(0));
-    println!("7 -> {}",seeder::get_double_or_float(1));
-    println!("8 -> {}",seeder::get_num_dec(10, 5));
-    println!("8 -> {}",seeder::get_num_dec(38, 5));
+    println!("1  -> {}",seeder::get_int_usize(1));
+    println!("2  -> {}",seeder::get_int_usize(2));
+    println!("3  -> {}",seeder::get_int_usize(3));
+    println!("4  -> {}",seeder::get_int_usize(4));
+    println!("5  -> {}",seeder::get_int_usize(5));
+    
+    println!("6  -> {}",seeder::get_double_or_float(0));
+    println!("7  -> {}",seeder::get_double_or_float(1));
+
+    // Ajustar en JS el tipo de dato numeric o decimal y su cantidad de cada uno
+    println!("8  -> {}",seeder::get_num_dec(10, 5));
+    println!("8  -> {}",seeder::get_num_dec(38, 5));
+
+    // Ajustar en JS el tipo de dato CHAR, VARCHAR, TEXT y su cantidad de cada uno
+    println!("11 -> {}",seeder::get_varchar_txt(500));
+
+    println!("12 -> {}",seeder::get_full_date(0) );
+    println!("13 -> {}",seeder::get_full_date(1) );
+    println!("14 -> {}",seeder::get_full_date(2) );
+    println!("15 -> {}",seeder::get_full_date(3) );
+
 
 }
 
@@ -73,26 +85,20 @@ let datos = [
             <option value="INT">INT</option>
             |<option value="BIG">BIGINT</option>
             <option disable>---------------------</option>
-
-            <option value="FLO">FLOAT     ~-3.4E+38    ~3.4E+38    3.141592 -12345.6789
-            <option value="DOU">DOUBLE    ~-1.7E+308   ~1.7E+308 
-            <option value="DEC">DECIMAL (P, S)</option> DECIMAL(10, 0))
-            <option value="NUM">NUMERIC (P, S)</option> NUMERIC(38, 0))
+            <option value="FLO">FLOAT</option>
+            <option value="DOU">DOUBLE</option>
+            <option value="DEC">DECIMAL (P, S)</option>
+            <option value="NUM">NUMERIC (P, S)</option>
 	        <option disabled   >-------------</option>
-
-            
             <option value="CHA">CHAR (N)</option>
             <option value="VAR">VARCHAR (N)</option>
             <option value="TEX">TEXT</option>
             <option disabled   >-------------</option>
-
-
-
-            <option value="DAT">DATE</option>
-            <option value="TIM">TIME</option>
-            <option value="DAT">DATETIME</option>
-            <option value="TMS">TIMESTAMP</option>
-            <option value="YEA">YEAR</option>
+            <option value="DAT">DATE</option>       
+            <option value="TIM">TIME</option>       
+            <option value="DAT">DATETIME</option>   
+            <option value="TMS">TIMESTAMP</option>  
+            <option value="YEA">YEAR</option>       
             <option disabled   >-------------</option>
 
             <option value="BIN">BINARY (N)</option>
@@ -105,14 +111,92 @@ let datos = [
             <option value="ENU">ENUM</option>
             <option value="SET">SET</option>
 
+            
+
 */
 mod seeder {
 
-    use rand::{ self, Rng };   //{self, Rng};
+    use rand::{ self, Rng };
 
-    // use std::env;
-    // use std::process::Command;
-    // use std::process::exit;
+
+    /* pub fn get_date(tipo: usize){
+
+        let mut rng: rand::prelude::ThreadRng = rand::rng();
+        rng.random_range(0 .. 9)
+    }  */
+
+
+
+    /// RETORNA UN VALOR DEL TIPO STRING <br>
+    /// QUE REPRESENTA UN VALOR DEL YEAR, DATE, DATETIME, TIME
+    /// ```
+    /// OPCIONES
+    /// arg - 0 - DATETIME  YYYY-MM-DD HH:MM:SS
+    /// arg - 1 - TIME      HH:MM:SS
+    /// arg - 2 - YEAR      YYYY
+    /// arg - 3 - DATE      YYYY-MM-DD
+    /// ```
+    pub fn get_full_date(tipo: usize)->String{
+    
+        let mut rng: rand::prelude::ThreadRng = rand::rng();
+        let mut cadena:String = String::from("");
+
+        // let sep = separador;
+        let year: Vec<&str> = vec![ "2020", "2021", "2022", "2023", "2024", "2025"];
+        let mont: Vec<&str> = vec![ "01","02","03","04","05","06","07","08","09","10","11","12" ];
+        let day:  Vec<&str> = vec![ "01","02","03","04","05","06","07","08","09","10","11","12",
+                                    "13","14","15","16","17","18","19","20","21","22","23",
+                                    "24","25","26","27","28","29","30" ];
+
+        match tipo{
+            0 => {  // DATETIME  YYYY-MM-DD HH:MM:SS
+                cadena = format!("{} {}",
+                    get_full_date(3),      // YYYY-MM-DD
+                    get_full_date(1));     // HH:MM:SS
+                return cadena
+            },
+            1 =>{ // time HH:MM:SS
+                cadena = format!("{}:{}:{}", 
+                    day[rng.random_range(0..24)],   // Hours
+                    rng.random_range(10..60),       // Minutes
+                    rng.random_range(10..60)        // Seconds 
+                );
+                return cadena
+            },
+            2 => { // year
+                let random = rng.random_range(0..year.len());
+                cadena.push_str(year[random]);
+                return cadena
+            },
+            3 => { // full date
+                let mut random = rng.random_range(0..year.len());
+                cadena.push_str(year[random]);
+                cadena.push_str("-");
+            
+                random = rng.random_range(0..mont.len());
+                cadena.push_str(mont[random]);
+                cadena.push_str("-");
+            
+                if random == 1{ random = rng.random_range(0..25)
+                }else{ random = rng.random_range(0..day.len()) }
+                cadena.push_str(day[random]);
+                cadena
+            }
+            _ => return "x".to_string()
+        }
+    }   
+
+    /// RETORNA UN VALOR DEL TIPO STRING <br>
+    /// QUE REPRESENTA UN VALOR DEL VARCHAR, VAR, TEXT <br>
+    /// ```
+    /// OPCIONES
+    /// arg - num - Tamaño del string que genera  
+    /// ```
+    pub fn get_varchar_txt(num: usize)->String{
+
+        get_token(num, false)
+
+    }
     
      /// RETORNA UN VALOR DEL TIPO STRING <br>
     /// QUE REPRESENTA UN VALOR DEL TIPO NUMERIC O DECIMAL <br>
@@ -121,7 +205,6 @@ mod seeder {
     /// opc- num  cantidad de numeros de la cifra entera
     /// opc- dec  cantidad de numeros de la cifra decimal
     /// ```
-    /// 
 
     pub fn get_num_dec(num: usize, dec: usize)->String{
 
@@ -326,35 +409,7 @@ mod seeder {
         cadena
     }  
     
-    pub fn get_full_date(separador: String)->String{
-    
-        let mut rng: rand::prelude::ThreadRng = rand::rng();
-        let mut cadena:String = String::from("");
-        let sep = separador;
-        let year: Vec<&str> = vec![ "2020", "2021", "2022", "2023", "2024", "2025"];
-        let mont: Vec<&str> = vec![ "01","02","03","04","05","06","07","08","09","10","11","12" ];
-        let day:  Vec<&str> = vec![ "01","02","03","04","05","06","08","09","10","11","12",
-                                    "13","14","15","16","17","18","19","20","21","22","23",
-                                    "24","25","26","27","28","29","30" ];
-        
-        let mut random = rng.random_range(0..year.len());
-        cadena.push_str(year[random]);
-        cadena.push_str(&sep);
-    
-        random = rng.random_range(0..mont.len());
-        cadena.push_str(mont[random]);
-        cadena.push_str(&sep);
-    
-        if random == 1{
-            random = rng.random_range(0..25);    
-        }else{
-            random = rng.random_range(0..day.len());
-        }
-        
-        cadena.push_str(day[random]);
-    
-        cadena
-    }  
+ 
     
     pub fn get_rand_words()->String{
         let mut rng: rand::prelude::ThreadRng = rand::rng();
