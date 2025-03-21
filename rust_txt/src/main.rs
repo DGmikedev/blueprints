@@ -5,11 +5,12 @@ mod get_fker_data;
 mod editor_txt;
 mod mkr_fke_data;
 mod make_script_sql;
+mod procesos_cmd;
 
 fn main() {
 
     let datos = [
-         vec!["local".to_string(), "users".to_string(), "5".to_string()], 
+         vec!["local".to_string(), "users".to_string(), "10000".to_string()], 
          vec!["email_verified_at".to_string(), "TMS".to_string(), "0".to_string(), "0".to_string()], 
          vec!["created_at".to_string(), "TMS".to_string(), "0".to_string(), "0".to_string()], 
          vec!["updated_at".to_string(), "TMS".to_string(), "0".to_string(), "0".to_string()], 
@@ -41,6 +42,10 @@ fn main() {
 
         // RETURN SI FALLA LA CREACIÓN DEL DIRECTORIO
         if !&path_directory { println!("No se pudo crear el directorio indicado: {}", &path) }
+
+        // Se clonan los paths de directorios y documento
+        //  cambiar en servidor y revisar las diagonales para LINUX o WINDOWS
+        let mut path2exec = format!("C:/Users/El JEFE/Desktop/DESARROLLO/blueprints/rust_txt/{}{}", path.clone(), name.clone());
 
     // 2) => se crea el archvio
         let document: Result<File, Error> = editor_txt::create_file(path.clone(), name);
@@ -84,29 +89,20 @@ fn main() {
             }
             let _ = editor_txt::insert_txt_by_ln(full_name.clone(),row.clone());
         }
+    // 5) => Ya creado el script se manda ejecutar en CLI de MySQL
 
-    /*
-    let commando = Command::new("mysql")
-            .arg("-u")
-            .arg("root")
-            .arg("-e")
-            .arg(stringtmp)
-            .output()
-            .expect("Falló al ejecutar el comando");
+        path2exec = format!("source {}",path2exec);  // se adciona el la bandera "source" para indicar que es un script y su path
+        
+        let args = vec!["mysql", "-u", "root", "-e", &path2exec];
 
-            // success?
-            if commando.status.success() {
-                // Si la ejecución fue exitosa, mostramos la salida
-                println!("{}", String::from_utf8_lossy(&commando.stdout));
-            } else {
-                // Si ocurrió un error, mostramos el error
-                eprintln!("Error al ejecutar el comando MySQL:");
-                eprintln!("{}", String::from_utf8_lossy(&commando.stderr));
-                exit(1); // Salir con código de error 1
-            }
-     */    
-
-
-
+        if procesos_cmd::ejecutar_proc(args){
+            println!("INSERCIÓN COMPLETADA");
+        }else{
+            panic!("NO SE PUDO COMPLETAR LA INSERCIÓN")
+        }
 }
+
+
+    
+  
 
