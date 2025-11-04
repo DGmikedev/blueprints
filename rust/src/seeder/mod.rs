@@ -1,6 +1,5 @@
 use rand::{self, Rng};
 use std::env;
-use std::os::windows::process;
 use std::process::Command;
 use std::process::exit;
 
@@ -182,20 +181,38 @@ pub fn get_rand_words()->String{
    
 pub fn get_inserts(db: String, tabla:String, num_reg:usize){
 
-    // let mut string: String = String::from("");
+    if num_reg < 200 {
+        insertor(num_reg);
+        println!("Insertando: {}", num_reg);
+    }else{
 
+        let mut exec_num =  num_reg as f32/200f32;
+
+        exec_num = exec_num.floor();
+
+        println!("Se insertarán {}", exec_num * 200f32);
+
+        for i in 0 .. exec_num as usize{
+            println!("Insertando: {} de {}", i * 200,  exec_num as f32 * 200f32);
+            insertor(200);
+        }
+
+        println!("Insertando: {} de {}", exec_num as f32 * 200f32,  exec_num as f32 * 200f32);
+    }
+
+}
+
+pub fn insertor(num_reg: usize){    
     // INSERT MYSQL
-    
-    let mut stringtmp: String = String::from("");
-             
 
-            for i in 1 ..=num_reg{
-
-                stringtmp= format!(  "INSERT INTO {}.{} 
+    let db = "pltfrm_laravel" ;
+    let tabla  = "users";
+    let mut stringtmp: String = 
+             format!(  "INSERT INTO {}.{} 
              ( name, email, password, remember_token, email_verified_at, created_at, updated_at )
                VALUES", db, tabla  );
 
-
+            for i in 1 ..=num_reg{
                 let name: String = "( '".to_string() + &get_name()+ &" ".to_string() + &get_mdl_lst_name() + &" ".to_string() + &get_mdl_lst_name() + &"'".to_string();
                 stringtmp.push_str(&name);
                 stringtmp.push_str(",");
@@ -210,36 +227,32 @@ pub fn get_inserts(db: String, tabla:String, num_reg:usize){
                 stringtmp.push_str(&( "'".to_string() + &get_date("-".to_string()) + &"'".to_string() ) );
                 stringtmp.push_str(",");
                 stringtmp.push_str(&( "'".to_string() + &get_date("-".to_string()) + &"'".to_string()) );
-                stringtmp.push_str(");");
-                // if i == num_reg {
-                //     stringtmp.push_str(");\n");    
-                // }else{
-                //     stringtmp.push_str("),\n");
-                // }
-                let commando = Command::new("mysql")
+                if i == num_reg {
+                    stringtmp.push_str(");\n");    
+                }else{
+                    stringtmp.push_str("),\n");
+                }
+                
+            }
+
+            let commando = Command::new("mysql")
             .arg("-u")
             .arg("root")
             .arg("-e")
-            .arg(&stringtmp)
+            .arg(stringtmp)
             .output()
             .expect("Falló al ejecutar el comando");
-            stringtmp.clear();
-            }
-
-            /*
 
             // success?
             if commando.status.success() {
                 // Si la ejecución fue exitosa, mostramos la salida
-                println!("SALIDA EXITOSA {}", String::from_utf8_lossy(&commando.stdout));
-                exit(0);
+                println!("{}", String::from_utf8_lossy(&commando.stdout));
             } else {
                 // Si ocurrió un error, mostramos el error
                 eprintln!("Error al ejecutar el comando MySQL:");
                 eprintln!("{}", String::from_utf8_lossy(&commando.stderr));
                 exit(1); // Salir con código de error 1
             }
-            */
 
 }
 

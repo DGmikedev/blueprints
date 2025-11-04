@@ -5,15 +5,29 @@ mod estadistica;
 
 use rand::{self, Rng};
 mod seeder;
-
+mod editor_text;
 
 // añadir al modulo de estadistica
 use std::collections::HashMap;
 
 fn main(){
 
+        // [
+//     ["banco_central", "usuarios_registrados", "800"], 
+//     ["Columna 2", "NAM", "0", "0"], 
+//     ["Columna 3", "ADD", "0", "0"], 
+//     ["Columna 4", "DEC", "10", "2"], 
+//     ["Columna 5", "SMA", "0", "0"], 
+//     ["Columna 6", "VAR", "0", "0"], 
+//     ["Columna 7", "BIN", "26", "0"], 
+//     ["Columna 8", "DAT", "0", "0"]
+// ]
+
+
+
         // Insertador de regisros en tabla de ususarios
-        seeder::get_inserts("pltfrm_laravel".to_string(), "users".to_string(), 200);
+        // 200, 400, 800, 1000, 5000, 10000
+      //   seeder::get_inserts("pltfrm_laravel".to_string(), "users".to_string(), 10);
         
 
 
@@ -83,9 +97,80 @@ factor_corr_spearman
 */
 
 
+let datos: Vec<Vec<String>> = vec![
+    vec!["banco_central".to_string(), "usuarios_registrados".to_string(), "800".to_string()], 
+    vec!["Columna_2".to_string(), "NAM".to_string(), "0".to_string(), "0".to_string()], 
+    vec!["Columna_3".to_string(), "ADD".to_string(), "0".to_string(), "0".to_string()], 
+    vec!["Columna_4".to_string(), "DEC".to_string(), "10".to_string(), "2".to_string()], 
+    vec!["Columna_5".to_string(), "SMA".to_string(), "0".to_string(), "0".to_string()], 
+    vec!["Columna_6".to_string(), "VAR".to_string(), "0".to_string(), "0".to_string()], 
+    vec!["Columna_7".to_string(), "BIN".to_string(), "26".to_string(), "0".to_string()], 
+    vec!["Columna_8".to_string(), "DAT".to_string(), "0".to_string(), "0".to_string()]
+];
+
+
+rx_data(datos)
 
 
 }
+
+
+
+fn rx_data(data: Vec<Vec<String>>){
+       
+        let mut cols_names: Vec<String> = Vec::new();
+        
+        for i in 1..data.len(){ cols_names.push(data[i][0].clone()) }
+
+        // crea las cabezeras       
+
+        // "INSERT INTO banco_central.usuarios_registrados 
+        //      (Columna_2,Columna_3,Columna_4,Columna_5,Columna_6,Columna_7,Columna_8) VALUES "
+
+        let mut script: String = create_header_script(cols_names, data[0].clone());
+        
+        // Crear documento
+        crear_txt(script.clone(), data[0].clone());
+
+        
+  // let salidatxt: Result<(), std::io::Error> = 
+  // editor_text::edit_txt( name, path, text );
+
+       // println!("{:?}",data);
+} 
+
+
+fn create_header_script(schema:Vec<String>, head_data: Vec<String>)->String{
+
+        let array_cols_name = schema; 
+        let bd: &String = &head_data[0];
+        let table: &String = &head_data[1];
+        let mut acm: usize = 0;
+        let mut head_script = format!("INSERT INTO {}.{} ( ", bd, table); 
+            
+        for i in array_cols_name.iter(){
+            acm += 1;
+            head_script.push_str(i);
+            if acm == array_cols_name.len(){ head_script.push_str("") }
+            else{ head_script.push_str(",") }
+        }
+        head_script.push_str(" ) VALUES ");
+        head_script
+            
+}
+
+
+fn crear_txt(text: String, datos:Vec<String>){
+    
+   // let text: String =  String::from(text);
+   let name: String =  format!("{}_{}.sql", &datos[0], &datos[1]);
+   let path: String =  format!("{}/{}", &datos[0], &datos[1]);    
+   let salidatxt: Result<(), std::io::Error> = 
+        editor_text::edit_txt( name, path, text );
+}
+
+
+
 
 // SECCIÓN ESTADISTICA
 

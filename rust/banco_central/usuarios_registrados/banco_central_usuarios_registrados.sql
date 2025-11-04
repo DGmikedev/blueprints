@@ -1,0 +1,1 @@
+INSERT INTO banco_central.usuarios_registrados ( Columna_2,Columna_3,Columna_4,Columna_5,Columna_6,Columna_7,Columna_8 ) VALUES 
